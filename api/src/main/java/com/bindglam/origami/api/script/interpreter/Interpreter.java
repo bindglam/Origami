@@ -241,10 +241,10 @@ public final class Interpreter {
 
             List<Value> args = new ArrayList<>();
 
-            com.bindglam.origami.api.script.interpreter.value.Function valueToCall = (com.bindglam.origami.api.script.interpreter.value.Function) visit(callNode.toCall(), context);
+            AbstractFunction valueToCall = (AbstractFunction) visit(callNode.toCall(), context);
             if(valueToCall == null)
                 throw new RuntimeException(callNode.posStart(), callNode.posEnd(), "not defined", context);
-            valueToCall = (com.bindglam.origami.api.script.interpreter.value.Function) valueToCall.setPos(callNode.posStart(), callNode.posEnd());
+            valueToCall = (AbstractFunction) valueToCall.setPos(callNode.posStart(), callNode.posEnd());
 
             for(Node argNode : callNode.args()) {
                 args.add(visit(argNode, context));

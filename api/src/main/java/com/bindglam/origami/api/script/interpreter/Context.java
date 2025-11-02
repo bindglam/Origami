@@ -20,11 +20,11 @@ public final class Context {
         return displayName;
     }
 
-    public Context parent() {
+    public @Nullable Context parent() {
         return parent;
     }
 
-    public Position parentEntryPosition() {
+    public @Nullable Position parentEntryPosition() {
         return parentEntryPosition;
     }
 

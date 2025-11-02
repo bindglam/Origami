@@ -9,6 +9,8 @@ public interface Value extends Cloneable {
 
     Position posEnd();
 
+    Context context();
+
     Value setPos(Position posStart, Position posEnd);
 
     Value setContext(Context context);

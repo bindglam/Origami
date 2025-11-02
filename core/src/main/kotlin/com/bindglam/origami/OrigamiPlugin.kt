@@ -17,8 +17,6 @@ import net.kyori.adventure.text.Component
 import org.bukkit.plugin.java.JavaPlugin
 
 class OrigamiPlugin : JavaPlugin(), Origami {
-    private val globalSymbolTable = SymbolTable().apply { set("NULL", Number.NULL); set("TRUE", Number.TRUE); set("FALSE", Number.FALSE) }
-
     override fun onLoad() {
         CommandAPI.onLoad(CommandAPIPaperConfig(this))
 
@@ -34,7 +32,7 @@ class OrigamiPlugin : JavaPlugin(), Origami {
                     val parser = Parser(tokens)
                     val interpreter = Interpreter()
                     val context = Context("<program>", null, null)
-                    context.symbolTable(globalSymbolTable)
+                    context.symbolTable(SymbolTable(SymbolTable.GLOBAL_SYMBOL_TABLE))
 
                     val result = interpreter.visit(parser.parse(), context)
 
