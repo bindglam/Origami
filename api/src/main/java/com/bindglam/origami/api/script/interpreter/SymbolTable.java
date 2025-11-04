@@ -1,7 +1,10 @@
 package com.bindglam.origami.api.script.interpreter;
 
-import com.bindglam.origami.api.Origami;
+import com.bindglam.origami.api.OrigamiProvider;
+import com.bindglam.origami.api.script.event.EventType;
+import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.interpreter.value.BuiltInFunction;
+import com.bindglam.origami.api.script.interpreter.value.Function;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 import com.bindglam.origami.api.script.interpreter.value.Number;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +29,26 @@ public final class SymbolTable {
 
             return null;
         }, List.of("value")));
+
+        GLOBAL_SYMBOL_TABLE.set("REGISTER_LISTENER", new BuiltInFunction("REGISTER_LISTENER", (context) -> {
+            Value typeValue = Objects.requireNonNull(context.symbolTable().get("type"));
+            Value funcValue = Objects.requireNonNull(context.symbolTable().get("func"));
+
+            if(!(typeValue instanceof com.bindglam.origami.api.script.interpreter.value.String typeStr)
+                    || !(funcValue instanceof Function func))
+                throw new RuntimeException(context.parentEntryPosition(), context.parentEntryPosition(), "Illegal arguments", context.parent());
+
+            EventType type;
+            try {
+                type = EventType.valueOf(typeStr.value());
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException(context.parentEntryPosition(), context.parentEntryPosition(), "Unknown event type", context.parent());
+            }
+
+            context.script().getEventRegistry().register(type, func);
+
+            return null;
+        }, List.of("type", "func")));
     }
 
     private final Map<String, Value> symbols = new HashMap<>();

@@ -8,6 +8,7 @@ import com.bindglam.origami.api.script.interpreter.value.Comparable;
 import com.bindglam.origami.api.script.interpreter.value.Number;
 import com.bindglam.origami.api.script.node.*;
 import com.bindglam.origami.api.utils.ThrowingBiFunction;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
@@ -244,7 +245,7 @@ public final class Interpreter {
             AbstractFunction valueToCall = (AbstractFunction) visit(callNode.toCall(), context);
             if(valueToCall == null)
                 throw new RuntimeException(callNode.posStart(), callNode.posEnd(), "not defined", context);
-            valueToCall = (AbstractFunction) valueToCall.setPos(callNode.posStart(), callNode.posEnd());
+            valueToCall = (AbstractFunction) valueToCall.setPos(callNode.posStart(), callNode.posEnd()).setContext(context);
 
             for(Node argNode : callNode.args()) {
                 args.add(visit(argNode, context));
@@ -254,7 +255,7 @@ public final class Interpreter {
         });
     }};
 
-    public @Nullable Value visit(Node node, Context context) throws ScriptException {
+    public @Nullable Value visit(@NotNull Node node, Context context) throws ScriptException {
         for (Map.Entry<Class<? extends Node>, ThrowingBiFunction<Node, Context, Value, ScriptException>> entry : visitFunctions.entrySet()) {
             if(!entry.getKey().isInstance(node))
                 continue;

@@ -27,7 +27,10 @@ public abstract class AbstractFunction implements Value {
     public abstract @Nullable Value execute(List<Value> args) throws ScriptException;
 
     protected Context generateNewContext() {
-        Context newContext = new Context(name, context, posStart);
+        if(context == null)
+            throw new IllegalStateException("context cannot be null");
+
+        Context newContext = new Context(name, context, posStart, context.script());
 
         newContext.symbolTable(newContext.parent() != null ? new SymbolTable(newContext.parent().symbolTable()) : new SymbolTable());
 

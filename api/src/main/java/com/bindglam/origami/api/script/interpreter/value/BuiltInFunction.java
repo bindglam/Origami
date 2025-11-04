@@ -7,6 +7,7 @@ import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.Interpreter;
 import com.bindglam.origami.api.script.node.Node;
 import com.bindglam.origami.api.utils.ThrowingFunction;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
@@ -16,24 +17,20 @@ public final class BuiltInFunction extends AbstractFunction {
     private final ThrowingFunction<Context, @Nullable Value, ScriptException> function;
     private final List<String> argNames;
 
-    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value, ScriptException> function, List<String> argNames, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) {
-        super(name, posStart, posEnd, context);
+    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value, ScriptException> function, List<String> argNames) {
+        super(name, null, null, null);
         this.function = function;
         this.argNames = argNames;
     }
 
-    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value, ScriptException> function, List<String> argNames) {
-        this(name, function, argNames, null, null, null);
-    }
-
     @Override
     public Value setPos(Position posStart, Position posEnd) {
-        return new BuiltInFunction(name(), function, argNames, posStart, posEnd, context());
+        return new BuiltInFunction(name(), function, argNames);
     }
 
     @Override
     public Value setContext(Context context) {
-        return new BuiltInFunction(name(), function, argNames, posStart(), posEnd(), context);
+        return new BuiltInFunction(name(), function, argNames);
     }
 
     @Override
