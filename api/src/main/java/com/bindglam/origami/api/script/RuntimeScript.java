@@ -1,10 +1,10 @@
 package com.bindglam.origami.api.script;
 
+import com.bindglam.origami.api.OrigamiProvider;
 import com.bindglam.origami.api.script.event.EventRegistry;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.Interpreter;
-import com.bindglam.origami.api.script.interpreter.SymbolTable;
 import com.bindglam.origami.api.script.node.Node;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,8 +27,7 @@ public class RuntimeScript implements Runnable, AutoCloseable {
             Interpreter interpreter = new Interpreter();
 
             Context context = new Context("<program>", null, null, this);
-            SymbolTable symbolTable = new SymbolTable(SymbolTable.GLOBAL_SYMBOL_TABLE);
-            context.symbolTable(symbolTable);
+            context.symbolTable(OrigamiProvider.origami().scriptManager().createSymbolTable());
 
             interpreter.visit(code, context);
         } catch (ScriptException e) {

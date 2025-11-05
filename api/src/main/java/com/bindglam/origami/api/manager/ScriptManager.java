@@ -1,11 +1,18 @@
 package com.bindglam.origami.api.manager;
 
 import com.bindglam.origami.api.script.Script;
+import com.bindglam.origami.api.script.interpreter.SymbolTable;
+import com.bindglam.origami.api.script.interpreter.value.BuiltInFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public interface ScriptManager extends ManagerBase {
     void compileAll();
 
-    Optional<Script> getScript(String id);
+    void registerBuiltInFunction(@NotNull BuiltInFunction function);
+
+    @NotNull SymbolTable createSymbolTable();
+
+    Optional<Script> getScript(@NotNull String id);
 }

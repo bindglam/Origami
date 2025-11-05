@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
+import java.util.Arrays;
 import java.util.List;
 
 public final class BuiltInFunction extends AbstractFunction {
@@ -45,5 +46,45 @@ public final class BuiltInFunction extends AbstractFunction {
         populateArgs(argNames, args, executor);
 
         return function.apply(executor);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String name;
+        private List<String> args = List.of();
+        private ThrowingFunction<Context, @Nullable Value, ScriptException> body;
+
+        private Builder() {
+        }
+
+        public Builder name(@NotNull String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder args(@NotNull List<String> args) {
+            this.args = args;
+            return this;
+        }
+
+        public Builder args(@NotNull String... args) {
+            this.args = Arrays.stream(args).toList();
+            return this;
+        }
+
+        public Builder body(@NotNull ThrowingFunction<Context, @Nullable Value, ScriptException> body) {
+            this.body = body;
+            return this;
+        }
+
+        public @NotNull BuiltInFunction build() {
+            if(name == null)
+                throw new IllegalStateException("name cannot be null");
+
+            return new BuiltInFunction(name, body, args);
+        }
     }
 }
