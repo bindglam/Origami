@@ -21,6 +21,36 @@ object ScriptManagerImpl : ScriptManager {
     private val builtInFunctions = arrayListOf<BuiltInFunction>()
 
     override fun start() {
+        fun registerInternalBuiltInFunctions() {
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("PRINT")
+                .args("value")
+                .body { context ->
+                    println(context.symbolTable().get("value").toString())
+
+                    return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("REGISTER_LISTENER")
+                .args("type", "func")
+                .body { context ->
+                    val type = context.symbolTable().get("type")
+                    val func = context.symbolTable().get("func")
+
+                    if (type !is com.bindglam.origami.api.script.interpreter.value.String || func !is Function)
+                        throw RuntimeException(context.parentEntryPosition(), context.parentEntryPosition(), "Illegal arguments", context.parent())
+
+                    context.script().eventRegistry.register(type.value, func)
+
+                    return@body null
+                }
+                .build()
+            )
+        }
+
         registerInternalBuiltInFunctions()
 
         if(!scriptsFolder.exists())
@@ -54,36 +84,6 @@ object ScriptManagerImpl : ScriptManager {
             throw IllegalStateException("Already registered")
 
         builtInFunctions.add(function)
-    }
-
-    private fun registerInternalBuiltInFunctions() {
-        registerBuiltInFunction(BuiltInFunction.builder()
-            .name("PRINT")
-            .args("value")
-            .body { context ->
-                println(context.symbolTable().get("value").toString())
-
-                return@body null
-            }
-            .build()
-        )
-
-        registerBuiltInFunction(BuiltInFunction.builder()
-            .name("REGISTER_LISTENER")
-            .args("type", "func")
-            .body { context ->
-                val type = context.symbolTable().get("type")
-                val func = context.symbolTable().get("func")
-
-                if (type !is com.bindglam.origami.api.script.interpreter.value.String || func !is Function)
-                    throw RuntimeException(context.parentEntryPosition(), context.parentEntryPosition(), "Illegal arguments", context.parent())
-
-                context.script().eventRegistry.register(type.value, func)
-
-                return@body null
-            }
-            .build()
-        )
     }
 
     override fun createSymbolTable(): SymbolTable = SymbolTable().apply {

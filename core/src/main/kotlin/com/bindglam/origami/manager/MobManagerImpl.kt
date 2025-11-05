@@ -23,6 +23,16 @@ object MobManagerImpl : MobManager {
     val mobs = hashMapOf<UUID, LivingMob>()
 
     override fun start() {
+        fun loadMob(id: String, config: ConfigurationSection): OrigamiMob {
+            val properties = MobProperties.builder()
+                .id(id)
+                .type(EntityType.valueOf(config.getString("type")!!))
+
+            val script = ScriptManagerImpl.getScript(if(config.contains("script")) config.getString("script")!! else id)
+
+            return OrigamiMobImpl(properties.build(), script.orElseThrow())
+        }
+
         if(!mobsFolder.exists())
             mobsFolder.mkdirs()
 
@@ -40,16 +50,6 @@ object MobManagerImpl : MobManager {
     override fun end() {
         loadedMobs.clear()
         mobs.clear()
-    }
-
-    private fun loadMob(id: String, config: ConfigurationSection): OrigamiMob {
-        val properties = MobProperties.builder()
-            .id(id)
-            .type(EntityType.valueOf(config.getString("type")!!))
-
-        val script = ScriptManagerImpl.getScript(if(config.contains("script")) config.getString("script")!! else id)
-
-        return OrigamiMobImpl(properties.build(), script.orElseThrow())
     }
 
     override fun getMob(id: String): Optional<OrigamiMob> = Optional.ofNullable(loadedMobs[id])
