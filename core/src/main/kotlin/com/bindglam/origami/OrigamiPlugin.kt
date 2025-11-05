@@ -10,28 +10,45 @@ import com.bindglam.origami.api.script.Parser
 import com.bindglam.origami.api.script.exceptions.ScriptException
 import com.bindglam.origami.api.script.interpreter.value.Number
 import com.bindglam.origami.api.script.interpreter.SymbolTable
+import com.bindglam.origami.listeners.EntityListener
+import com.bindglam.origami.manager.MobManagerImpl
 import com.bindglam.origami.manager.ScriptManagerImpl
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandAPIPaperConfig
+import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.GreedyStringArgument
+import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
+import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.plugin.java.JavaPlugin
 
 class OrigamiPlugin : JavaPlugin(), Origami {
     private val managers = listOf(
-        ScriptManagerImpl
+        ScriptManagerImpl,
+        MobManagerImpl
     )
 
     override fun onLoad() {
         CommandAPI.onLoad(CommandAPIPaperConfig(this))
 
-        CommandAPICommand("testscript")
-            .withArguments(GreedyStringArgument("line"))
-            .executes(CommandExecutor { sender, args ->
-                val text = args["line"] as String
-            })
+        CommandAPICommand("origami")
+            .withPermission(CommandPermission.OP)
+            .withSubcommands(
+                CommandAPICommand("spawn")
+                    .withArguments(StringArgument("id"))
+                    .executesPlayer(PlayerCommandExecutor { player, args ->
+                        val id = args["id"] as String
+
+                        MobManagerImpl.getMob(id).ifPresentOrElse({ mob ->
+                            mob.spawn(player.location)
+                        }) {
+                            player.sendMessage(Component.text("Unknown mob").color(NamedTextColor.RED))
+                        }
+                    })
+            )
             .register()
     }
 
@@ -39,6 +56,8 @@ class OrigamiPlugin : JavaPlugin(), Origami {
         CommandAPI.onEnable()
 
         OrigamiProvider.register(this)
+
+        server.pluginManager.registerEvents(EntityListener, this)
 
         managers.forEach { it.start() }
     }

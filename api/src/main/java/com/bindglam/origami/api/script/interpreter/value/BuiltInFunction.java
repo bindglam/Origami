@@ -17,20 +17,24 @@ public final class BuiltInFunction extends AbstractFunction {
     private final ThrowingFunction<Context, @Nullable Value, ScriptException> function;
     private final List<String> argNames;
 
-    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value, ScriptException> function, List<String> argNames) {
-        super(name, null, null, null);
+    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value, ScriptException> function, List<String> argNames, @Nullable Context context) {
+        super(name, null, null, context);
         this.function = function;
         this.argNames = argNames;
     }
 
+    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value, ScriptException> function, List<String> argNames) {
+        this(name, function, argNames, null);
+    }
+
     @Override
     public Value setPos(Position posStart, Position posEnd) {
-        return new BuiltInFunction(name(), function, argNames);
+        return new BuiltInFunction(name(), function, argNames, context());
     }
 
     @Override
     public Value setContext(Context context) {
-        return new BuiltInFunction(name(), function, argNames);
+        return new BuiltInFunction(name(), function, argNames, context);
     }
 
     @Override

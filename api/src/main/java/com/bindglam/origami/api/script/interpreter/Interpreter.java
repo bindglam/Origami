@@ -47,7 +47,7 @@ public final class Interpreter {
             if(value == null)
                 throw new RuntimeException(node.posStart(), node.posEnd(), "'" + varName + "' is not defined", context);
 
-            return value.setPos(node.posStart(), node.posEnd());
+            return value.setPos(node.posStart(), node.posEnd()).setContext(context);
         });
 
         put(VarAssignNode.class, (node, context) -> {
@@ -120,15 +120,15 @@ public final class Interpreter {
             };
 
             if (binOpNode.operationToken().matches(Token.Type.KEYWORD, "AND")) {
-                result = new Number(left.isTrue() && right.isTrue() ? 1.0 : 0.0, left.posStart(), right.posEnd(), context);
+                result = left.isTrue() && right.isTrue() ? Number.TRUE : Number.FALSE;
             } else if (binOpNode.operationToken().matches(Token.Type.KEYWORD, "OR")) {
-                result = new Number(left.isTrue() || right.isTrue() ? 1.0 : 0.0, left.posStart(), right.posEnd(), context);
+                result = left.isTrue() || right.isTrue() ? Number.TRUE : Number.FALSE;
             }
 
             if(result == null)
                 throw new RuntimeException(binOpNode.posStart(), binOpNode.posEnd(), "Unknown operation", context);
 
-            return result.setPos(binOpNode.posStart(), binOpNode.posEnd());
+            return result.setPos(binOpNode.posStart(), binOpNode.posEnd()).setContext(context);
         });
 
         put(UnaryOpNode.class, (node, context) -> {
@@ -144,7 +144,7 @@ public final class Interpreter {
                 number = number.not();
             }
 
-            return number.setPos(unaryOpNode.posStart(), unaryOpNode.posEnd());
+            return number.setPos(unaryOpNode.posStart(), unaryOpNode.posEnd()).setContext(context);
         });
 
         put(IfNode.class, (node, context) -> {

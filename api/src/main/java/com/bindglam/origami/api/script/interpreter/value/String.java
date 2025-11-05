@@ -38,7 +38,7 @@ public record String(java.lang.String value, @Nullable Position posStart, @Nulla
     public Number compareEquals(Value other) {
         if(!(other instanceof String otherStr)) return Number.FALSE;
 
-        return (value.equals(otherStr.value) ? Number.TRUE : Number.FALSE).setPos(posStart, posEnd).setContext(context);
+        return value.equals(otherStr.value) ? Number.TRUE : Number.FALSE;
     }
 
     @Override
