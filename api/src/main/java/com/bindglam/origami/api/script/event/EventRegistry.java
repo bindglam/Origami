@@ -1,7 +1,8 @@
 package com.bindglam.origami.api.script.event;
 
+import com.bindglam.origami.api.OrigamiProvider;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
-import com.bindglam.origami.api.script.interpreter.value.Function;
+import com.bindglam.origami.api.script.interpreter.value.primitive.Function;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 
 import java.util.*;
@@ -15,9 +16,13 @@ public final class EventRegistry implements AutoCloseable {
         list.add(function);
     }
 
-    public void callEvent(String type, List<Value> args) throws ScriptException {
+    public void callEvent(String type, List<Value<?>> args) {
         for(Function function : functions.computeIfAbsent(type, (t) -> new ArrayList<>())) {
-            function.execute(args);
+            try {
+                function.execute(args);
+            } catch (ScriptException e) {
+                OrigamiProvider.origami().scriptManager().printException(e);
+            }
         }
     }
 

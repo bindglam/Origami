@@ -1,25 +1,16 @@
-package com.bindglam.origami.api.script.interpreter.value;
+package com.bindglam.origami.api.script.interpreter.value.primitive;
 
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
+import com.bindglam.origami.api.script.interpreter.value.Addable;
+import com.bindglam.origami.api.script.interpreter.value.Value;
 import org.jetbrains.annotations.Nullable;
 
-public record String(java.lang.String value, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context)
-        implements Value, Addable {
+public record String(java.lang.String value, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) implements Value<String>, Addable<String> {
     public String(java.lang.String value) {
         this(value, null, null, null);
-    }
-
-    @Override
-    public String setPos(Position posStart, Position posEnd) {
-        return new String(value, posStart, posEnd, context);
-    }
-
-    @Override
-    public String setContext(Context context) {
-        return new String(value, posStart, posEnd, context);
     }
 
     public String set(java.lang.String value) {
@@ -27,7 +18,7 @@ public record String(java.lang.String value, @Nullable Position posStart, @Nulla
     }
 
     @Override
-    public String addedTo(Value other) throws ScriptException {
+    public String addedTo(Value<?> other) throws ScriptException {
         if(!(other instanceof String otherStr))
             throw new RuntimeException(posStart, posEnd, "Unsupported operation", context);
 
@@ -35,10 +26,15 @@ public record String(java.lang.String value, @Nullable Position posStart, @Nulla
     }
 
     @Override
-    public Number compareEquals(Value other) {
+    public Number compareEquals(Value<?> other) {
         if(!(other instanceof String otherStr)) return Number.FALSE;
 
         return value.equals(otherStr.value) ? Number.TRUE : Number.FALSE;
+    }
+
+    @Override
+    public String setInfo(Position posStart, Position posEnd, Context context) {
+        return new String(value, posStart, posEnd, context);
     }
 
     @Override

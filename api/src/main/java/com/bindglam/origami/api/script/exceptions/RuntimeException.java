@@ -3,13 +3,14 @@ package com.bindglam.origami.api.script.exceptions;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.utils.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 public class RuntimeException extends ScriptException {
     private final Context context;
 
-    public RuntimeException(Position posStart, Position posEnd, String details, Context context) {
+    public RuntimeException(@NotNull Position posStart, @NotNull Position posEnd, String details, @NotNull Context context) {
         super(posStart, posEnd, "Runtime Exception", details);
         this.context = context;
     }
@@ -28,8 +29,8 @@ public class RuntimeException extends ScriptException {
         Position pos = getPosStart();
         Context ctx = context;
 
-        while(ctx != null) {
-            result.insert(0, "  File " + Objects.requireNonNull(pos).getFn() + ", line " + (pos.getLine() + 1) + ", in " + ctx.displayName() + "\n");
+        while(ctx != null && pos != null) {
+            result.insert(0, "  File " + pos.getFn() + ", line " + (pos.getLine() + 1) + ", in " + (ctx.displayName() != null ? ctx.displayName() : "<unknown>") + "\n");
             pos = ctx.parentEntryPosition();
             ctx = ctx.parent();
         }

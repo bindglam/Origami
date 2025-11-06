@@ -2,7 +2,7 @@ package com.bindglam.origami.api.script.exceptions;
 
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.utils.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class ScriptException extends Exception {
     private final Position posStart;
@@ -10,18 +10,18 @@ public class ScriptException extends Exception {
     private final String errorName;
     private final String details;
 
-    public ScriptException(@Nullable Position posStart, @Nullable Position posEnd, String errorName, String details) {
+    public ScriptException(@NotNull Position posStart, @NotNull Position posEnd, String errorName, String details) {
         this.posStart = posStart;
         this.posEnd = posEnd;
         this.errorName = errorName;
         this.details = details;
     }
 
-    public @Nullable Position getPosStart() {
+    public @NotNull Position getPosStart() {
         return posStart;
     }
 
-    public @Nullable Position getPosEnd() {
+    public @NotNull Position getPosEnd() {
         return posEnd;
     }
 

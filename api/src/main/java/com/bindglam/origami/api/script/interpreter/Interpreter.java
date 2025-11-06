@@ -5,7 +5,8 @@ import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.value.*;
 import com.bindglam.origami.api.script.interpreter.value.Comparable;
-import com.bindglam.origami.api.script.interpreter.value.Number;
+import com.bindglam.origami.api.script.interpreter.value.primitive.AbstractFunction;
+import com.bindglam.origami.api.script.interpreter.value.primitive.Number;
 import com.bindglam.origami.api.script.node.*;
 import com.bindglam.origami.api.utils.ThrowingBiFunction;
 import org.jetbrains.annotations.NotNull;
@@ -17,44 +18,44 @@ import java.util.List;
 import java.util.function.Function;
 
 public final class Interpreter {
-    private final Map<Class<? extends Node>, ThrowingBiFunction<Node, Context, Value, ScriptException>> visitFunctions = new HashMap<>() {{
+    private final Map<Class<? extends Node>, ThrowingBiFunction<Node, Context, Value<?>, ScriptException>> visitFunctions = new HashMap<>() {{
         put(NumberNode.class, (node, context) ->
-                new com.bindglam.origami.api.script.interpreter.value.Number((double) Objects.requireNonNull(((NumberNode) node).token().value()),
+                new Number((double) Objects.requireNonNull(((NumberNode) node).token().value()),
                         node.posStart(), node.posEnd(), context));
 
         put(StringNode.class, (node, context) ->
-                new com.bindglam.origami.api.script.interpreter.value.String((String) Objects.requireNonNull(((StringNode) node).token().value()),
+                new com.bindglam.origami.api.script.interpreter.value.primitive.String((String) Objects.requireNonNull(((StringNode) node).token().value()),
                         node.posStart(), node.posEnd(), context));
 
         put(ListNode.class, (node, context) -> {
             ListNode listNode = (ListNode) node;
 
-            List<Value> elements = new ArrayList<>();
+            List<Value<?>> elements = new ArrayList<>();
 
             for(Node element : listNode.elements()) {
                 elements.add(visit(element, context));
             }
 
-            return new com.bindglam.origami.api.script.interpreter.value.List(elements, listNode.posStart(), listNode.posEnd(), context);
+            return new com.bindglam.origami.api.script.interpreter.value.primitive.List(elements, listNode.posStart(), listNode.posEnd(), context);
         });
 
         put(VarAccessNode.class, (node, context) -> {
             VarAccessNode varAccessNode = (VarAccessNode) node;
 
             String varName = (String) varAccessNode.name().value();
-            Value value = context.symbolTable().get(varName);
+            Value<?> value = context.symbolTable().get(varName);
 
             if(value == null)
                 throw new RuntimeException(node.posStart(), node.posEnd(), "'" + varName + "' is not defined", context);
 
-            return value.setPos(node.posStart(), node.posEnd()).setContext(context);
+            return value.setInfo(node.posStart(), node.posEnd(), context);
         });
 
         put(VarAssignNode.class, (node, context) -> {
             VarAssignNode varAssignNode = (VarAssignNode) node;
 
             String varName = (String) varAssignNode.name().value();
-            Value value = visit(varAssignNode.value(), context);
+            Value<?> value = visit(varAssignNode.value(), context);
 
             context.symbolTable().set(varName, value);
 
@@ -64,27 +65,27 @@ public final class Interpreter {
         put(BinOpNode.class, (node, context) -> {
             BinOpNode binOpNode = (BinOpNode) node;
 
-            Value left = Objects.requireNonNull(visit(binOpNode.leftNode(), context));
-            Value right = Objects.requireNonNull(visit(binOpNode.rightNode(), context));
+            Value<?> left = Objects.requireNonNull(visit(binOpNode.leftNode(), context));
+            Value<?> right = Objects.requireNonNull(visit(binOpNode.rightNode(), context));
 
-            Value result = switch (binOpNode.operationToken().type()) {
+            Value<?> result = switch (binOpNode.operationToken().type()) {
                 case PLUS -> {
-                    if(left instanceof Addable add)
+                    if(left instanceof Addable<?> add)
                         yield add.addedTo(right);
                     yield null;
                 }
                 case MINUS -> {
-                    if(left instanceof Subtractable sub)
+                    if(left instanceof Subtractable<?> sub)
                         yield sub.subbedTo(right);
                     yield null;
                 }
                 case MUL -> {
-                    if(left instanceof Multipliable mul)
+                    if(left instanceof Multipliable<?> mul)
                         yield mul.multedBy(right);
                     yield null;
                 }
                 case DIV -> {
-                    if(left instanceof Divisible div)
+                    if(left instanceof Divisible<?> div)
                         yield div.divedBy(right);
                     yield null;
                 }
@@ -128,30 +129,30 @@ public final class Interpreter {
             if(result == null)
                 throw new RuntimeException(binOpNode.posStart(), binOpNode.posEnd(), "Unknown operation", context);
 
-            return result.setPos(binOpNode.posStart(), binOpNode.posEnd()).setContext(context);
+            return result.setInfo(binOpNode.posStart(), binOpNode.posEnd(), context);
         });
 
         put(UnaryOpNode.class, (node, context) -> {
             UnaryOpNode unaryOpNode = (UnaryOpNode) node;
 
-            Value value = visit(unaryOpNode.node(), context);
+            Value<?> value = visit(unaryOpNode.node(), context);
             if(!(value instanceof Number number))
                 throw new RuntimeException(node.posStart(), node.posEnd(), "Unknown operation", context);
 
             if(unaryOpNode.operationToken().type() == Token.Type.MINUS) {
-                number = (Number) number.multedBy(new Number(-1));
+                number = number.multedBy(new Number(-1));
             } else if(unaryOpNode.operationToken().matches(Token.Type.KEYWORD, "NOT")) {
                 number = number.not();
             }
 
-            return number.setPos(unaryOpNode.posStart(), unaryOpNode.posEnd()).setContext(context);
+            return number.setInfo(unaryOpNode.posStart(), unaryOpNode.posEnd(), context);
         });
 
         put(IfNode.class, (node, context) -> {
             IfNode ifNode = (IfNode) node;
 
             for(IfNode.Case ifCase : ifNode.cases()) {
-                Value conditionValue = visit(ifCase.condition(), context);
+                Value<?> conditionValue = visit(ifCase.condition(), context);
                 if(!(conditionValue instanceof Number condition))
                     throw new RuntimeException(node.posStart(), node.posEnd(), "Expected number", context);
 
@@ -178,7 +179,7 @@ public final class Interpreter {
 
             Number stepValue = new Number(1.0);
             if(forNode.stepValue() != null) {
-                Value value = visit(forNode.stepValue(), context);
+                Value<?> value = visit(forNode.stepValue(), context);
                 if(!(value instanceof Number))
                     throw new RuntimeException(node.posStart(), node.posEnd(), "Expected number", context);
 
@@ -207,7 +208,7 @@ public final class Interpreter {
             WhileNode whileNode = (WhileNode) node;
 
             while(true) {
-                Value conditionValue = visit(whileNode.condition(), context);
+                Value<?> conditionValue = visit(whileNode.condition(), context);
                 if(!(conditionValue instanceof Number condition))
                     throw new RuntimeException(node.posStart(), node.posEnd(), "Expected number", context);
 
@@ -229,7 +230,7 @@ public final class Interpreter {
             Node bodyNode = funcDefNode.body();
             List<String> argNames = funcDefNode.argNames().stream().map((tok) -> (String) tok.value()).toList();
 
-            Value funcValue = new com.bindglam.origami.api.script.interpreter.value.Function(funcName, bodyNode, argNames, funcDefNode.posStart(), funcDefNode.posEnd(), context);
+            com.bindglam.origami.api.script.interpreter.value.primitive.Function funcValue = new com.bindglam.origami.api.script.interpreter.value.primitive.Function(funcName, bodyNode, argNames, funcDefNode.posStart(), funcDefNode.posEnd(), context);
 
             if(funcDefNode.varName() != null)
                 context.symbolTable().set(funcName, funcValue);
@@ -240,12 +241,12 @@ public final class Interpreter {
         put(CallNode.class, (node, context) -> {
             CallNode callNode = (CallNode) node;
 
-            List<Value> args = new ArrayList<>();
+            List<Value<?>> args = new ArrayList<>();
 
             AbstractFunction valueToCall = (AbstractFunction) visit(callNode.toCall(), context);
             if(valueToCall == null)
                 throw new RuntimeException(callNode.posStart(), callNode.posEnd(), "not defined", context);
-            valueToCall = (AbstractFunction) valueToCall.setPos(callNode.posStart(), callNode.posEnd()).setContext(context);
+            valueToCall = valueToCall.setInfo(callNode.posStart(), callNode.posEnd(), context);
 
             for(Node argNode : callNode.args()) {
                 args.add(visit(argNode, context));
@@ -255,8 +256,8 @@ public final class Interpreter {
         });
     }};
 
-    public @Nullable Value visit(@NotNull Node node, Context context) throws ScriptException {
-        for (Map.Entry<Class<? extends Node>, ThrowingBiFunction<Node, Context, Value, ScriptException>> entry : visitFunctions.entrySet()) {
+    public @Nullable Value<?> visit(@NotNull Node node, Context context) throws ScriptException {
+        for (Map.Entry<Class<? extends Node>, ThrowingBiFunction<Node, Context, Value<?>, ScriptException>> entry : visitFunctions.entrySet()) {
             if(!entry.getKey().isInstance(node))
                 continue;
 

@@ -3,19 +3,18 @@ package com.bindglam.origami.api.script.interpreter.value;
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
+import com.bindglam.origami.api.script.interpreter.value.primitive.Number;
 
-public interface Value extends Cloneable {
+public interface Value<T extends Value<T>> {
     Position posStart();
 
     Position posEnd();
 
     Context context();
 
-    Value setPos(Position posStart, Position posEnd);
+    T setInfo(Position posStart, Position posEnd, Context context);
 
-    Value setContext(Context context);
-
-    Number compareEquals(Value other);
+    Number compareEquals(Value<?> other);
 
     boolean isTrue() throws ScriptException;
 }

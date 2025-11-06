@@ -1,17 +1,18 @@
-package com.bindglam.origami.api.script.interpreter.value;
+package com.bindglam.origami.api.script.interpreter.value.primitive;
 
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.SymbolTable;
+import com.bindglam.origami.api.script.interpreter.value.Value;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractFunction implements Value {
+public abstract class AbstractFunction implements Value<AbstractFunction> {
     private final String name;
     private final Position posStart;
     private final Position posEnd;
@@ -24,7 +25,7 @@ public abstract class AbstractFunction implements Value {
         this.context = context;
     }
 
-    public abstract @Nullable Value execute(List<Value> args) throws ScriptException;
+    public abstract @Nullable Value<?> execute(List<Value<?>> args) throws ScriptException;
 
     protected Context generateNewContext() {
         if(context == null)
@@ -37,18 +38,19 @@ public abstract class AbstractFunction implements Value {
         return newContext;
     }
 
-    protected void checkArgs(List<String> argNames, List<Value> args) throws ScriptException {
+    protected void checkArgs(List<String> argNames, List<Value<?>> args, Context funcContext) throws ScriptException {
         if(args.size() > argNames.size())
-            throw new RuntimeException(posStart, posEnd, (args.size() - argNames.size()) + " too many args passed into " + name, context);
+            throw new RuntimeException(posStart, posEnd, (args.size() - argNames.size()) + " too many args passed into " + name, funcContext);
 
         if(args.size() < argNames.size())
-            throw new RuntimeException(posStart, posEnd, (argNames.size() - args.size()) + " too few args passed into " + name, context);
+            throw new RuntimeException(posStart, posEnd, (argNames.size() - args.size()) + " too few args passed into " + name, funcContext);
     }
 
-    protected void populateArgs(List<String> argNames, List<Value> args, Context executor) {
+    protected void populateArgs(List<String> argNames, List<Value<?>> args, Context executor) {
         for(int i = 0; i < args.size(); i++) {
             String argName = argNames.get(i);
-            Value argValue = args.get(i).setContext(executor);
+            Value<?> argValue = args.get(i);
+            argValue = argValue.setInfo(argValue.posStart(), argValue.posEnd(), executor);
 
             executor.symbolTable().set(argName, argValue);
         }
@@ -74,7 +76,7 @@ public abstract class AbstractFunction implements Value {
     }
 
     @Override
-    public Number compareEquals(Value other) {
+    public Number compareEquals(Value<?> other) {
         if(!(other instanceof AbstractFunction otherFunc))
             return Number.FALSE;
 

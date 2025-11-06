@@ -3,10 +3,17 @@ package com.bindglam.origami.manager
 import com.bindglam.origami.api.manager.ScriptManager
 import com.bindglam.origami.api.script.Script
 import com.bindglam.origami.api.script.exceptions.RuntimeException
+import com.bindglam.origami.api.script.exceptions.ScriptException
 import com.bindglam.origami.api.script.interpreter.SymbolTable
-import com.bindglam.origami.api.script.interpreter.value.BuiltInFunction
-import com.bindglam.origami.api.script.interpreter.value.Function
-import com.bindglam.origami.api.script.interpreter.value.Number
+import com.bindglam.origami.api.script.interpreter.value.primitive.BuiltInFunction
+import com.bindglam.origami.api.script.interpreter.value.bukkit.Entity
+import com.bindglam.origami.api.script.interpreter.value.primitive.Function
+import com.bindglam.origami.api.script.interpreter.value.bukkit.Location
+import com.bindglam.origami.api.utils.math.LocationAdaptable
+import com.bindglam.origami.api.script.interpreter.value.primitive.Number
+import net.kyori.adventure.text.minimessage.MiniMessage
+import org.bukkit.Bukkit
+import org.bukkit.Particle
 import java.io.File
 import java.util.*
 import java.util.logging.Logger
@@ -22,6 +29,27 @@ object ScriptManagerImpl : ScriptManager {
 
     override fun start() {
         fun registerInternalBuiltInFunctions() {
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("LOCATION")
+                .args("world", "x", "y", "z", "yaw", "pitch")
+                .body { context ->
+                    val world = context.symbolTable().get("world")
+                    val x = context.symbolTable().get("x")
+                    val y = context.symbolTable().get("y")
+                    val z = context.symbolTable().get("z")
+                    val yaw = context.symbolTable().get("yaw")
+                    val pitch = context.symbolTable().get("pitch")
+
+                    if (world !is com.bindglam.origami.api.script.interpreter.value.primitive.String || x !is Number || y !is Number || z !is Number
+                        || yaw !is Number || pitch !is Number)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    return@body Location(org.bukkit.Location(Bukkit.getWorld(world.value()), x.value(), y.value(), z.value(), yaw.value().toFloat(), pitch.value().toFloat()))
+                }
+                .build()
+            )
+
+
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("PRINT")
                 .args("value")
@@ -40,10 +68,53 @@ object ScriptManagerImpl : ScriptManager {
                     val type = context.symbolTable().get("type")
                     val func = context.symbolTable().get("func")
 
-                    if (type !is com.bindglam.origami.api.script.interpreter.value.String || func !is Function)
-                        throw RuntimeException(context.parentEntryPosition(), context.parentEntryPosition(), "Illegal arguments", context.parent())
+                    if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || func !is Function)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
 
-                    context.script().eventRegistry.register(type.value, func)
+                    context.script().eventRegistry.register(type.value(), func)
+
+                    return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("SEND_MESSAGE")
+                .args("entity", "message")
+                .body { context ->
+                    val entity = context.symbolTable().get("entity")
+                    val message = context.symbolTable().get("message")
+
+                    if (entity !is Entity || message !is com.bindglam.origami.api.script.interpreter.value.primitive.String)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    entity.bukkitEntity().sendMessage(MiniMessage.miniMessage().deserialize(message.value()))
+
+                    return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("PARTICLE")
+                .args("type", "location", "cnt")
+                .body { context ->
+                    val type = context.symbolTable().get("type")
+                    val location = context.symbolTable().get("location")
+                    val cnt = context.symbolTable().get("cnt")
+
+                    if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || cnt !is Number)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    try {
+                        Particle.valueOf(type.value()).builder()
+                            .location(location.location())
+                            .count(cnt.value().toInt())
+                            .receivers(32, true)
+                            .spawn()
+                    } catch (_: IllegalArgumentException) {
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Unknown particle name", context.parent()!!)
+                    }
 
                     return@body null
                 }
@@ -95,4 +166,8 @@ object ScriptManagerImpl : ScriptManager {
     }
 
     override fun getScript(id: String): Optional<Script> = Optional.ofNullable(loadedScripts[id])
+
+    override fun printException(exception: ScriptException) {
+        logger.info(exception.toString())
+    }
 }

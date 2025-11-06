@@ -3,13 +3,6 @@ package com.bindglam.origami
 import com.bindglam.origami.api.Origami
 import com.bindglam.origami.api.OrigamiProvider
 import com.bindglam.origami.api.manager.ScriptManager
-import com.bindglam.origami.api.script.interpreter.Context
-import com.bindglam.origami.api.script.interpreter.Interpreter
-import com.bindglam.origami.api.script.Lexer
-import com.bindglam.origami.api.script.Parser
-import com.bindglam.origami.api.script.exceptions.ScriptException
-import com.bindglam.origami.api.script.interpreter.value.Number
-import com.bindglam.origami.api.script.interpreter.SymbolTable
 import com.bindglam.origami.listeners.EntityListener
 import com.bindglam.origami.manager.MobManagerImpl
 import com.bindglam.origami.manager.ScriptManagerImpl
@@ -17,9 +10,7 @@ import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandAPIPaperConfig
 import dev.jorel.commandapi.CommandPermission
-import dev.jorel.commandapi.arguments.GreedyStringArgument
 import dev.jorel.commandapi.arguments.StringArgument
-import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor

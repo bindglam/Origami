@@ -1,9 +1,10 @@
-package com.bindglam.origami.api.script.interpreter.value;
+package com.bindglam.origami.api.script.interpreter.value.primitive;
 
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.Interpreter;
+import com.bindglam.origami.api.script.interpreter.value.Value;
 import com.bindglam.origami.api.script.node.Node;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,21 +26,16 @@ public final class Function extends AbstractFunction {
     }
 
     @Override
-    public Value setPos(Position posStart, Position posEnd) {
-        return new Function(name(), body, argNames, posStart, posEnd, context());
+    public Function setInfo(Position posStart, Position posEnd, Context context) {
+        return new Function(name(), body, argNames, posStart, posEnd, context);
     }
 
     @Override
-    public Value setContext(Context context) {
-        return new Function(name(), body, argNames, posStart(), posEnd(), context);
-    }
-
-    @Override
-    public @Nullable Value execute(List<Value> args) throws ScriptException {
+    public @Nullable Value<?> execute(List<Value<?>> args) throws ScriptException {
         Interpreter interpreter = new Interpreter();
         Context executor = generateNewContext();
 
-        checkArgs(argNames, args);
+        checkArgs(argNames, args, executor);
         populateArgs(argNames, args, executor);
 
         return interpreter.visit(body, executor);
