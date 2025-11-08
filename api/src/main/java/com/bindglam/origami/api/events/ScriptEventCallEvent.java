@@ -11,9 +11,9 @@ public class ScriptEventCallEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final String id;
-    private final List<Value> args;
+    private final List<Value<?>> args;
 
-    public ScriptEventCallEvent(String id, List<Value> args) {
+    public ScriptEventCallEvent(String id, List<Value<?>> args) {
         this.id = id;
         this.args = args;
     }
@@ -22,7 +22,7 @@ public class ScriptEventCallEvent extends Event {
         return id;
     }
 
-    public List<Value> getArgs() {
+    public List<Value<?>> getArgs() {
         return args;
     }
 

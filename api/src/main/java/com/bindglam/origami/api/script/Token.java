@@ -56,6 +56,6 @@ public record Token(Type type, @Nullable Object value, @Nullable Position posSta
         ARROW,
 
         NEWLINE,
-        EOF;
+        EOF
     }
 }

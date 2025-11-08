@@ -6,11 +6,12 @@ import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.Addable;
 import com.bindglam.origami.api.script.interpreter.value.Value;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public record String(java.lang.String value, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) implements Value<String>, Addable<String> {
+public record String(java.lang.String value, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) implements Value<String>, Addable<String> {
     public String(java.lang.String value) {
-        this(value, null, null, null);
+        this(value, Position.NONE, Position.NONE, Context.NONE);
     }
 
     public String set(java.lang.String value) {
@@ -33,7 +34,7 @@ public record String(java.lang.String value, @Nullable Position posStart, @Nulla
     }
 
     @Override
-    public String setInfo(Position posStart, Position posEnd, Context context) {
+    public String setInfo(@NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         return new String(value, posStart, posEnd, context);
     }
 

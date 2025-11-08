@@ -6,6 +6,7 @@ import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.Interpreter;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 import com.bindglam.origami.api.script.node.Node;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
@@ -15,18 +16,18 @@ public final class Function extends AbstractFunction {
     private final Node body;
     private final List<String> argNames;
 
-    public Function(@Nullable java.lang.String name, Node body, List<java.lang.String> argNames, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) {
+    public Function(@Nullable java.lang.String name, Node body, List<java.lang.String> argNames, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         super(name, posStart, posEnd, context);
         this.body = body;
         this.argNames = argNames;
     }
 
     public Function(@Nullable java.lang.String name, Node body, List<java.lang.String> argNames) {
-        this(name, body, argNames, null, null, null);
+        this(name, body, argNames, Position.NONE, Position.NONE, Context.NONE);
     }
 
     @Override
-    public Function setInfo(Position posStart, Position posEnd, Context context) {
+    public Function setInfo(@NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         return new Function(name(), body, argNames, posStart, posEnd, context);
     }
 

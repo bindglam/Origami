@@ -205,7 +205,7 @@ public final class Lexer {
         return new Token(tokenType, result, posStart, pos);
     }
 
-    private Token makeMinusOrArrow() throws ScriptException {
+    private Token makeMinusOrArrow() {
         Token.Type tokenType = Token.Type.MINUS;
         Position posStart = pos.clone();
 

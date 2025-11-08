@@ -7,6 +7,7 @@ import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.SymbolTable;
 import com.bindglam.origami.api.script.interpreter.value.Value;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
@@ -20,7 +21,7 @@ public abstract class AbstractFunction implements Value<AbstractFunction> {
     private final Position posEnd;
     private final Context context;
 
-    public AbstractFunction(@Nullable String name, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) {
+    public AbstractFunction(@Nullable String name, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         this.name = name;
         this.posStart = posStart;
         this.posEnd = posEnd;
@@ -41,9 +42,6 @@ public abstract class AbstractFunction implements Value<AbstractFunction> {
     }
 
     protected Context generateNewContext() {
-        if(context == null)
-            throw new IllegalStateException("context cannot be null");
-
         Context newContext = new Context(name, context, posStart, context.script());
 
         newContext.symbolTable(newContext.parent() != null ? new SymbolTable(newContext.parent().symbolTable()) : new SymbolTable());
@@ -74,17 +72,17 @@ public abstract class AbstractFunction implements Value<AbstractFunction> {
     }
 
     @Override
-    public Position posStart() {
+    public @NotNull Position posStart() {
         return posStart;
     }
 
     @Override
-    public Position posEnd() {
+    public @NotNull Position posEnd() {
         return posEnd;
     }
 
     @Override
-    public Context context() {
+    public @NotNull Context context() {
         return context;
     }
 

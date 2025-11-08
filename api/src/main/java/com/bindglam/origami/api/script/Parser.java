@@ -23,11 +23,10 @@ public final class Parser {
         advance();
     }
 
-    public Token advance() {
+    public void advance() {
         tokenIdx++;
 
         updateCurrentToken();
-        return currentToken;
     }
 
     public Token reverse(int amount) {

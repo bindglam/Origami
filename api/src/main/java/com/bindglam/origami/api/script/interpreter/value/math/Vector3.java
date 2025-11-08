@@ -11,13 +11,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
-public record Vector3(Vector3d vector, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) implements Value<Vector3> {
+public record Vector3(Vector3d vector, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) implements Value<Vector3> {
     public Vector3(Vector3d vector) {
-        this(vector, null, null, null);
+        this(vector, Position.NONE, Position.NONE, Context.NONE);
     }
 
     @Override
-    public Vector3 setInfo(Position posStart, Position posEnd, Context context) {
+    public Vector3 setInfo(@NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         return new Vector3(vector, posStart, posEnd, context);
     }
 

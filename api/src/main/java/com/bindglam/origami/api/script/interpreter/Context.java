@@ -5,6 +5,8 @@ import com.bindglam.origami.api.script.RuntimeScript;
 import org.jetbrains.annotations.Nullable;
 
 public final class Context {
+    public static final Context NONE = new Context("<unknown>", null, null, null);
+
     private final String displayName;
     private final Context parent;
     private final Position parentEntryPosition;

@@ -10,13 +10,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
 
-public record Entity(org.bukkit.entity.Entity bukkitEntity, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) implements Value<Entity>, LocationAdaptable {
+public record Entity(org.bukkit.entity.Entity bukkitEntity, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) implements Value<Entity>, LocationAdaptable {
     public Entity(org.bukkit.entity.Entity bukkitEntity) {
-        this(bukkitEntity, null, null, null);
+        this(bukkitEntity, Position.NONE, Position.NONE, Context.NONE);
     }
 
     @Override
-    public Entity setInfo(Position posStart, Position posEnd, Context context) {
+    public Entity setInfo(@NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         return new Entity(bukkitEntity, posStart, posEnd, context);
     }
 
@@ -28,7 +28,7 @@ public record Entity(org.bukkit.entity.Entity bukkitEntity, @Nullable Position p
     }
 
     @Override
-    public boolean isTrue() throws ScriptException {
+    public boolean isTrue() {
         return bukkitEntity.isEmpty();
     }
 

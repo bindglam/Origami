@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class SymbolTable {
-    private final Map<String, Value> symbols = new HashMap<>();
+    private final Map<String, Value<?>> symbols = new HashMap<>();
 
     private SymbolTable parent;
 
@@ -19,14 +19,14 @@ public final class SymbolTable {
         this(null);
     }
 
-    public @Nullable Value get(String name) {
-        Value value = symbols.get(name);
+    public @Nullable Value<?> get(String name) {
+        Value<?> value = symbols.get(name);
         if(value == null && parent != null)
             return parent.get(name);
         return value;
     }
 
-    public void set(String name, Value value) {
+    public void set(String name, Value<?> value) {
         symbols.put(name, value);
     }
 

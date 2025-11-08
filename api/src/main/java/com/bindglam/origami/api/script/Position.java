@@ -5,6 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public final class Position implements Cloneable {
+    public static final Position NONE = new Position("<unknown>", "<unknwon>", -1, 0, -1);
+
     private int idx;
     private int line;
     private int column;

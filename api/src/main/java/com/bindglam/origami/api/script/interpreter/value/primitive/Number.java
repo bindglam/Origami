@@ -6,16 +6,19 @@ import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.*;
 import com.bindglam.origami.api.script.interpreter.value.Comparable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public record Number(double value, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context)
+import java.util.Objects;
+
+public record Number(double value, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context)
         implements Value<Number>, Addable<Number>, Subtractable<Number>, Multipliable<Number>, Divisible<Number>, Comparable {
     public static final Number NULL = new Number(0);
     public static final Number FALSE = new Number(0);
     public static final Number TRUE = new Number(1);
 
     public Number(double value) {
-        this(value, null, null, null);
+        this(value, Position.NONE, Position.NONE, Context.NONE);
     }
 
     public Number set(double value) {
@@ -25,7 +28,7 @@ public record Number(double value, @Nullable Position posStart, @Nullable Positi
     @Override
     public Number addedTo(Value<?> other) throws RuntimeException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new RuntimeException(Objects.requireNonNull(posStart()), other.posEnd(), "Unsupported operation", Objects.requireNonNull(context()));
 
         return set(value + otherNum.value);
     }
@@ -33,7 +36,7 @@ public record Number(double value, @Nullable Position posStart, @Nullable Positi
     @Override
     public Number subbedTo(Value<?> other) throws RuntimeException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new RuntimeException(Objects.requireNonNull(posStart()), other.posEnd(), "Unsupported operation", Objects.requireNonNull(context()));
 
         return set(value - otherNum.value);
     }
@@ -41,7 +44,7 @@ public record Number(double value, @Nullable Position posStart, @Nullable Positi
     @Override
     public Number multedBy(Value<?> other) throws RuntimeException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new RuntimeException(Objects.requireNonNull(posStart()), other.posEnd(), "Unsupported operation", Objects.requireNonNull(context()));
 
         return set(value * otherNum.value);
     }
@@ -101,7 +104,7 @@ public record Number(double value, @Nullable Position posStart, @Nullable Positi
     }
 
     @Override
-    public Number setInfo(Position posStart, Position posEnd, Context context) {
+    public Number setInfo(@NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         return new Number(value, posStart, posEnd, context);
     }
 

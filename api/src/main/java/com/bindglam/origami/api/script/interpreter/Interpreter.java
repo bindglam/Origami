@@ -98,7 +98,7 @@ public final class Interpreter {
                 case NOT_EQUAL -> left.compareEquals(right).not();
                 case LESS_THAN -> {
                     if(left instanceof Comparable comp)
-                        comp.compareLessThan(right);
+                        yield comp.compareLessThan(right);
                     yield null;
                 }
                 case GREATER_THAN -> {
@@ -261,7 +261,8 @@ public final class Interpreter {
             if(!entry.getKey().isInstance(node))
                 continue;
 
-            return entry.getValue().apply(node, context);
+            Value<?> result = entry.getValue().apply(node, context);
+            return result != null ? result.setInfo(node.posStart(), node.posEnd(), context) : null;
         }
 
         throw new RuntimeException(node.posStart(), node.posEnd(), "No visit method defined", context);

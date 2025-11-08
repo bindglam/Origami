@@ -11,13 +11,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
 
-public record Location(org.bukkit.Location bukkitLoc, @Nullable Position posStart, @Nullable Position posEnd, @Nullable Context context) implements Value<Location>, LocationAdaptable {
+public record Location(org.bukkit.Location bukkitLoc, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) implements Value<Location>, LocationAdaptable {
     public Location(org.bukkit.Location bukkitLoc) {
-        this(bukkitLoc, null, null, null);
+        this(bukkitLoc, Position.NONE, Position.NONE, Context.NONE);
     }
 
     @Override
-    public Location setInfo(Position posStart, Position posEnd, Context context) {
+    public Location setInfo(@NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         return new Location(bukkitLoc, posStart, posEnd, context);
     }
 

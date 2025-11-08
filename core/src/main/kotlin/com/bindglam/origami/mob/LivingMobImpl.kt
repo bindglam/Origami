@@ -10,7 +10,7 @@ class LivingMobImpl(private val origamiMob: OrigamiMob, private val entity: Enti
     private lateinit var script: RuntimeScript
 
     init {
-        origamiMob.script().executeAsync(this).thenAccept { s -> script = s }
+        origamiMob.script().executeAsync(this).thenAccept { s -> script = s }.get()
     }
 
     override fun remove() {
