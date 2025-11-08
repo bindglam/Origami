@@ -2,15 +2,14 @@ package com.bindglam.origami.manager
 
 import com.bindglam.origami.api.manager.MobManager
 import com.bindglam.origami.api.mob.LivingMob
-import com.bindglam.origami.api.mob.MobProperties
+import com.bindglam.origami.api.mob.properties.MobProperties
 import com.bindglam.origami.api.mob.OrigamiMob
-import com.bindglam.origami.mob.LivingMobImpl
 import com.bindglam.origami.mob.OrigamiMobImpl
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
-import org.bukkit.persistence.PersistentDataType
 import java.io.File
 import java.util.Optional
 import java.util.UUID
@@ -27,6 +26,7 @@ object MobManagerImpl : MobManager {
             val properties = MobProperties.builder()
                 .id(id)
                 .type(EntityType.valueOf(config.getString("type")!!))
+                .displayName(config.getRichMessage("display-name"))
 
             val script = ScriptManagerImpl.getScript(if(config.contains("script")) config.getString("script")!! else id)
 
