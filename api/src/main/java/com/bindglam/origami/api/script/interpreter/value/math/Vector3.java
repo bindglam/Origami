@@ -5,11 +5,8 @@ import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.Value;
-import com.bindglam.origami.api.utils.math.LocationAdaptable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 
 public record Vector3(Vector3d vector, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) implements Value<Vector3> {
     public Vector3(Vector3d vector) {

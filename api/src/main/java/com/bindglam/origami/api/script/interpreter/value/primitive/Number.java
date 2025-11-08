@@ -7,7 +7,6 @@ import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.*;
 import com.bindglam.origami.api.script.interpreter.value.Comparable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 

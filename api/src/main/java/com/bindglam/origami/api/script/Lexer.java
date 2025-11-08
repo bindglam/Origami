@@ -15,14 +15,12 @@ public final class Lexer {
     private static final Pattern PATTERN_CHAR = Pattern.compile("^[\\w]*$");
     private static final List<String> KEYWORDS = List.of("VAR", "AND", "OR", "NOT", "IF", "ELIF", "ELSE", "FOR", "TO", "STEP", "WHILE", "FUNC", "THEN", "END");
 
-    private final String fn;
     private final String text;
 
     private final Position pos;
     private Character currentChar = null;
 
     public Lexer(String fn, String text) {
-        this.fn = fn;
         this.text = text;
 
         this.pos = new Position(fn, text);

@@ -25,7 +25,7 @@ public final class Position implements Cloneable {
         this(fn, text, -1, 0, -1);
     }
 
-    public Position advance(@Nullable Character currentChar) {
+    public void advance(@Nullable Character currentChar) {
         idx++;
         column++;
 
@@ -33,8 +33,6 @@ public final class Position implements Cloneable {
             line++;
             column = 0;
         }
-
-        return this;
     }
 
     @Override

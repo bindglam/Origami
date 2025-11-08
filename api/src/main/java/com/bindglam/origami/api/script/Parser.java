@@ -29,12 +29,6 @@ public final class Parser {
         updateCurrentToken();
     }
 
-    public Token reverse(int amount) {
-        tokenIdx -= amount;
-        updateCurrentToken();
-        return currentToken;
-    }
-
     private void updateCurrentToken() {
         if(tokenIdx >= 0 && tokenIdx < tokens.size())
             currentToken = tokens.get(tokenIdx);

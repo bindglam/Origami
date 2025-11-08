@@ -7,7 +7,6 @@ import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 import com.bindglam.origami.api.utils.math.LocationAdaptable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
 

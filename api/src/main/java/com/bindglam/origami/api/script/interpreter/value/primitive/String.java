@@ -7,7 +7,6 @@ import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.Addable;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public record String(java.lang.String value, @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) implements Value<String>, Addable<String> {
     public String(java.lang.String value) {

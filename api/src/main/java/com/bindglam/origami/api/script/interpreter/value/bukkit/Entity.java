@@ -1,12 +1,10 @@
 package com.bindglam.origami.api.script.interpreter.value.bukkit;
 
 import com.bindglam.origami.api.script.Position;
-import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 import com.bindglam.origami.api.utils.math.LocationAdaptable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.String;
 
