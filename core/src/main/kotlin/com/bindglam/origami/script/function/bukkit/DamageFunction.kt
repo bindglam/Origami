@@ -14,22 +14,26 @@ object DamageFunction : BuiltInFunctionFactory {
     override fun create(): BuiltInFunction {
         return BuiltInFunction.builder()
             .name("DAMAGE")
-            .args(Argument.builder().name("entity").build(), Argument.builder().name("amount").build(), Argument.builder().name("attacker").build())
+            .args(Argument.builder().name("entity").build(), Argument.builder().name("amount").build(), Argument.builder().name("attacker").isOptional(true).build())
             .body { context ->
                 val entity = context.symbolTable().get("entity")
                 val amount = context.symbolTable().get("amount")
+
                 val attacker = context.symbolTable().get("attacker")
 
-                if (entity !is Entity || amount !is Number || attacker !is Entity)
+                if (entity !is Entity || amount !is Number || (attacker != null && attacker !is Entity))
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                 val bukkitEntity = entity.bukkitEntity()
                 if (bukkitEntity !is LivingEntity)
                     throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "You can damage only living entities", context.parent()!!)
 
-                OrigamiProvider.origami().scheduler().task {
-                    bukkitEntity.damage(amount.value(), attacker.bukkitEntity())
-                }
+                OrigamiProvider.origami().scheduler().taskRegion({
+                    if(attacker != null)
+                        bukkitEntity.damage(amount.value(), attacker.bukkitEntity())
+                    else
+                        bukkitEntity.damage(amount.value())
+                }, bukkitEntity.location)
 
                 return@body null
             }

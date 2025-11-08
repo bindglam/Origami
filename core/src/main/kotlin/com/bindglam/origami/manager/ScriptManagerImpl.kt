@@ -36,14 +36,16 @@ object ScriptManagerImpl : ScriptManager {
 
     private val loadedScripts = hashMapOf<String, Script>()
 
-    private val builtInFunctions = ArrayList<BuiltInFunction>(listOf(
-        CosFunction, DamageFunction, DelayFunction, EntityToLocationFunction, GetNearbyEntitiesFunction,
-        KnockbackFunction, LengthFunction, LocationFunction, LocationToVector3Function, NormalizeFunction,
-        ParticleFunction, PlaySoundFunction, PrintFunction, RegisterListenerFunction, SendMessageFunction,
-        SinFunction, ToRadiansFunction, Vector3Function
-    ).map { it.create() })
+    private val builtInFunctions = arrayListOf<BuiltInFunction>()
 
     override fun start() {
+        builtInFunctions.addAll(listOf(
+            CosFunction, DamageFunction, DelayFunction, EntityToLocationFunction, GetNearbyEntitiesFunction,
+            KnockbackFunction, LengthFunction, LocationFunction, LocationToVector3Function, NormalizeFunction,
+            ParticleFunction, PlaySoundFunction, PrintFunction, RegisterListenerFunction, SendMessageFunction,
+            SinFunction, ToRadiansFunction, Vector3Function
+        ).map { it.create() })
+
         if(!scriptsFolder.exists())
             scriptsFolder.mkdirs()
 

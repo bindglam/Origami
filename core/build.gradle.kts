@@ -21,4 +21,5 @@ paperPluginYaml {
     apiVersion = "1.21"
     author = "Bindglam"
     load = BukkitPluginYaml.PluginLoadOrder.STARTUP
+    foliaSupported = true
 }
