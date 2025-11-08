@@ -5,8 +5,9 @@ import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.value.*;
 import com.bindglam.origami.api.script.interpreter.value.Comparable;
-import com.bindglam.origami.api.script.interpreter.value.primitive.AbstractFunction;
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.AbstractFunction;
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number;
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument;
 import com.bindglam.origami.api.script.node.*;
 import com.bindglam.origami.api.utils.ThrowingBiFunction;
 import org.jetbrains.annotations.NotNull;
@@ -230,7 +231,9 @@ public final class Interpreter {
             Node bodyNode = funcDefNode.body();
             List<String> argNames = funcDefNode.argNames().stream().map((tok) -> (String) tok.value()).toList();
 
-            com.bindglam.origami.api.script.interpreter.value.primitive.Function funcValue = new com.bindglam.origami.api.script.interpreter.value.primitive.Function(funcName, bodyNode, argNames, funcDefNode.posStart(), funcDefNode.posEnd(), context);
+            com.bindglam.origami.api.script.interpreter.value.primitive.function.Function funcValue =
+                    new com.bindglam.origami.api.script.interpreter.value.primitive.function.Function(funcName, bodyNode,
+                            argNames.stream().map((name) -> Argument.builder().name(name).isOptional(false).build()).toList(), funcDefNode.posStart(), funcDefNode.posEnd(), context);
 
             if(funcDefNode.varName() != null)
                 context.symbolTable().set(funcName, funcValue);

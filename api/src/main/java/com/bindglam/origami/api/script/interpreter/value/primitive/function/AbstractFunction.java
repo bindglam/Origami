@@ -1,4 +1,4 @@
-package com.bindglam.origami.api.script.interpreter.value.primitive;
+package com.bindglam.origami.api.script.interpreter.value.primitive.function;
 
 import com.bindglam.origami.api.OrigamiProvider;
 import com.bindglam.origami.api.script.Position;
@@ -8,6 +8,7 @@ import com.bindglam.origami.api.script.exceptions.UnsupportedOperationException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.SymbolTable;
 import com.bindglam.origami.api.script.interpreter.value.Value;
+import com.bindglam.origami.api.utils.math.IntRange;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +16,7 @@ import java.lang.String;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 public abstract class AbstractFunction implements Value<AbstractFunction> {
     private final String name;
@@ -50,21 +52,33 @@ public abstract class AbstractFunction implements Value<AbstractFunction> {
         return newContext;
     }
 
-    protected void checkArgs(List<String> argNames, List<Value<?>> args, Context funcContext) throws ScriptException {
-        if(args.size() > argNames.size())
-            throw new RuntimeException(posStart, posEnd, (args.size() - argNames.size()) + " too many args passed into " + name, funcContext);
+    protected void checkArgs(List<Argument> args, List<Value<?>> argValues, Context funcContext) throws ScriptException {
+        boolean isOptionalPart = false;
+        for(Argument arg : args) {
+            if(!arg.isOptional() && isOptionalPart)
+                throw new RuntimeException(posStart, posEnd, "Optional argument should be at last", funcContext);
 
-        if(args.size() < argNames.size())
-            throw new RuntimeException(posStart, posEnd, (argNames.size() - args.size()) + " too few args passed into " + name, funcContext);
+            if(arg.isOptional())
+                isOptionalPart = true;
+        }
+
+        long requiredArgs = args.stream().filter((arg) -> !arg.isOptional()).count();
+        IntRange range = new IntRange((int) requiredArgs, args.size());
+
+        if(argValues.size() > range.max())
+            throw new RuntimeException(posStart, posEnd, (argValues.size() - range.max()) + " too many args passed into " + name, funcContext);
+
+        if(argValues.size() < range.min())
+            throw new RuntimeException(posStart, posEnd, (range.min() - argValues.size()) + " too few args passed into " + name, funcContext);
     }
 
-    protected void populateArgs(List<String> argNames, List<Value<?>> args, Context executor) {
-        for(int i = 0; i < args.size(); i++) {
-            String argName = argNames.get(i);
-            Value<?> argValue = args.get(i);
+    protected void populateArgs(List<Argument> args, List<Value<?>> argValues, Context executor) {
+        for(int i = 0; i < argValues.size(); i++) {
+            Argument arg = args.get(i);
+            Value<?> argValue = argValues.get(i);
             argValue = argValue.setInfo(argValue.posStart(), argValue.posEnd(), executor);
 
-            executor.symbolTable().set(argName, argValue);
+            executor.symbolTable().set(arg.name(), argValue);
         }
     }
 
@@ -88,11 +102,11 @@ public abstract class AbstractFunction implements Value<AbstractFunction> {
     }
 
     @Override
-    public Number compareEquals(Value<?> other) {
+    public com.bindglam.origami.api.script.interpreter.value.primitive.Number compareEquals(Value<?> other) {
         if(!(other instanceof AbstractFunction otherFunc))
-            return Number.FALSE;
+            return com.bindglam.origami.api.script.interpreter.value.primitive.Number.FALSE;
 
-        return Objects.equals(name, otherFunc.name) ? Number.TRUE : Number.FALSE;
+        return Objects.equals(name, otherFunc.name) ? com.bindglam.origami.api.script.interpreter.value.primitive.Number.TRUE : com.bindglam.origami.api.script.interpreter.value.primitive.Number.FALSE;
     }
 
     @Override

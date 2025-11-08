@@ -1,4 +1,4 @@
-package com.bindglam.origami.api.script.interpreter.value.primitive;
+package com.bindglam.origami.api.script.interpreter.value.primitive.function;
 
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
@@ -14,30 +14,30 @@ import java.util.List;
 
 public final class BuiltInFunction extends AbstractFunction {
     private final ThrowingFunction<Context, @Nullable Value<?>, ScriptException> function;
-    private final List<String> argNames;
+    private final List<Argument> args;
 
-    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value<?>, ScriptException> function, List<String> argNames,
+    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value<?>, ScriptException> function, List<Argument> args,
                            @NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
         super(name, posStart, posEnd, context);
         this.function = function;
-        this.argNames = argNames;
+        this.args = args;
     }
 
-    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value<?>, ScriptException> function, List<String> argNames) {
-        this(name, function, argNames, Position.NONE, Position.NONE, Context.NONE);
+    public BuiltInFunction(@Nullable String name, ThrowingFunction<Context, @Nullable Value<?>, ScriptException> function, List<Argument> args) {
+        this(name, function, args, Position.NONE, Position.NONE, Context.NONE);
     }
 
     @Override
     public BuiltInFunction setInfo(@NotNull Position posStart, @NotNull Position posEnd, @NotNull Context context) {
-        return new BuiltInFunction(name(), function, argNames, posStart, posEnd, context);
+        return new BuiltInFunction(name(), function, args, posStart, posEnd, context);
     }
 
     @Override
-    public @Nullable Value<?> execute(List<Value<?>> args) throws ScriptException {
+    public @Nullable Value<?> execute(List<Value<?>> argValues) throws ScriptException {
         Context executor = generateNewContext();
 
-        checkArgs(argNames, args, executor);
-        populateArgs(argNames, args, executor);
+        checkArgs(args, argValues, executor);
+        populateArgs(args, argValues, executor);
 
         return function.apply(executor);
     }
@@ -48,7 +48,7 @@ public final class BuiltInFunction extends AbstractFunction {
 
     public static class Builder {
         private String name;
-        private List<String> args = List.of();
+        private List<Argument> args = List.of();
         private ThrowingFunction<Context, @Nullable Value<?>, ScriptException> body;
 
         private Builder() {
@@ -59,12 +59,12 @@ public final class BuiltInFunction extends AbstractFunction {
             return this;
         }
 
-        public Builder args(@NotNull List<String> args) {
+        public Builder args(@NotNull List<Argument> args) {
             this.args = args;
             return this;
         }
 
-        public Builder args(@NotNull String... args) {
+        public Builder args(@NotNull Argument... args) {
             this.args = Arrays.stream(args).toList();
             return this;
         }

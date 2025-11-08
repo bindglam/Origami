@@ -1,7 +1,7 @@
 package com.bindglam.origami.api.script.event;
 
-import com.bindglam.origami.api.script.interpreter.value.primitive.AbstractFunction;
-import com.bindglam.origami.api.script.interpreter.value.primitive.Function;
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.AbstractFunction;
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.Function;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 
 import java.util.*;

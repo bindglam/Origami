@@ -3,7 +3,7 @@ package com.bindglam.origami.api.manager;
 import com.bindglam.origami.api.script.Script;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.SymbolTable;
-import com.bindglam.origami.api.script.interpreter.value.primitive.BuiltInFunction;
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;

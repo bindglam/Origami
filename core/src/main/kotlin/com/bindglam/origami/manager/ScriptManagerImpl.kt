@@ -7,14 +7,15 @@ import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.exceptions.RuntimeException
 import com.bindglam.origami.api.script.exceptions.ScriptException
 import com.bindglam.origami.api.script.interpreter.SymbolTable
-import com.bindglam.origami.api.script.interpreter.value.primitive.BuiltInFunction
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
 import com.bindglam.origami.api.script.interpreter.value.bukkit.Entity
-import com.bindglam.origami.api.script.interpreter.value.primitive.Function
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.Function
 import com.bindglam.origami.api.script.interpreter.value.math.Location
 import com.bindglam.origami.api.script.interpreter.value.math.Vector3
 import com.bindglam.origami.api.script.interpreter.value.primitive.List
 import com.bindglam.origami.api.utils.math.LocationAdaptable
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
+import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Bukkit
 import org.bukkit.Particle
@@ -40,7 +41,7 @@ object ScriptManagerImpl : ScriptManager {
         fun registerInternalBuiltInFunctions() {
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("LOCATION")
-                .args("world", "x", "y", "z", "yaw", "pitch")
+                .args(Argument.builder().name("world").build(), Argument.builder().name("x").build(), Argument.builder().name("y").build(), Argument.builder().name("z").build(), Argument.builder().name("yaw").build(), Argument.builder().name("pitch").build())
                 .body { context ->
                     val world = context.symbolTable().get("world")
                     val x = context.symbolTable().get("x")
@@ -60,7 +61,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("VECTOR3")
-                .args("x", "y", "z")
+                .args(Argument.builder().name("x").build(), Argument.builder().name("y").build(), Argument.builder().name("z").build())
                 .body { context ->
                     val x = context.symbolTable().get("x")
                     val y = context.symbolTable().get("y")
@@ -76,7 +77,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("LOCATION_TO_VECTOR3")
-                .args("location")
+                .args(Argument.builder().name("location").build())
                 .body { context ->
                     val location = context.symbolTable().get("location")
 
@@ -88,10 +89,24 @@ object ScriptManagerImpl : ScriptManager {
                 .build()
             )
 
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("ENTITY_TO_LOCATION")
+                .args(Argument.builder().name("entity").build())
+                .body { context ->
+                    val entity = context.symbolTable().get("entity")
+
+                    if (entity !is Entity)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    return@body Location(entity.bukkitEntity().location)
+                }
+                .build()
+            )
+
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("PRINT")
-                .args("value")
+                .args(Argument.builder().name("value").build())
                 .body { context ->
                     println(context.symbolTable().get("value").toString())
 
@@ -102,7 +117,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("LEN")
-                .args("list")
+                .args(Argument.builder().name("list").build())
                 .body { context ->
                     val list = context.symbolTable().get("list")
 
@@ -116,7 +131,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("DELAY")
-                .args("time")
+                .args(Argument.builder().name("time").build())
                 .body { context ->
                     val time = context.symbolTable().get("time")
 
@@ -131,7 +146,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("TO_RADIANS")
-                .args("angle")
+                .args(Argument.builder().name("angle").build())
                 .body { context ->
                     val angle = context.symbolTable().get("angle")
 
@@ -145,7 +160,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("COS")
-                .args("angle")
+                .args(Argument.builder().name("angle").build())
                 .body { context ->
                     val angle = context.symbolTable().get("angle")
 
@@ -159,7 +174,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("SIN")
-                .args("angle")
+                .args(Argument.builder().name("angle").build())
                 .body { context ->
                     val angle = context.symbolTable().get("angle")
 
@@ -173,7 +188,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("NORMALIZE")
-                .args("vector")
+                .args(Argument.builder().name("vector").build())
                 .body { context ->
                     val vector = context.symbolTable().get("vector")
 
@@ -188,7 +203,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("REGISTER_LISTENER")
-                .args("type", "func")
+                .args(Argument.builder().name("type").build(), Argument.builder().name("func").build())
                 .body { context ->
                     val type = context.symbolTable().get("type")
                     val func = context.symbolTable().get("func")
@@ -205,7 +220,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("SEND_MESSAGE")
-                .args("entity", "message")
+                .args(Argument.builder().name("entity").build(), Argument.builder().name("message").build())
                 .body { context ->
                     val entity = context.symbolTable().get("entity")
                     val message = context.symbolTable().get("message")
@@ -222,7 +237,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("DAMAGE")
-                .args("entity", "amount", "attacker")
+                .args(Argument.builder().name("entity").build(), Argument.builder().name("amount").build(), Argument.builder().name("attacker").build())
                 .body { context ->
                     val entity = context.symbolTable().get("entity")
                     val amount = context.symbolTable().get("amount")
@@ -246,7 +261,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("KNOCKBACK")
-                .args("entity", "vector")
+                .args(Argument.builder().name("entity").build(), Argument.builder().name("vector").build())
                 .body { context ->
                     val entity = context.symbolTable().get("entity")
                     val vector = context.symbolTable().get("vector")
@@ -263,7 +278,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("PLAY_SOUND")
-                .args("location", "key", "volume", "pitch")
+                .args(Argument.builder().name("location").build(), Argument.builder().name("key").build(), Argument.builder().name("volume").build(), Argument.builder().name("pitch").build())
                 .body { context ->
                     val location = context.symbolTable().get("location")
                     val key = context.symbolTable().get("key")
@@ -284,7 +299,7 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("GET_NEAR_BY_ENTITIES")
-                .args("location", "radius")
+                .args(Argument.builder().name("location").build(), Argument.builder().name("radius").build())
                 .body { context ->
                     val location = context.symbolTable().get("location")
                     val radius = context.symbolTable().get("radius")
@@ -299,25 +314,36 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("PARTICLE")
-                .args("type", "location", "offset", "cnt", "speed")
+                .args(
+                    Argument.builder().name("type").build(),
+                    Argument.builder().name("location").build(),
+                    Argument.builder().name("cnt").build(),
+                    Argument.builder().name("offset").isOptional(true).build(),
+                    Argument.builder().name("extra").isOptional(true).build())
                 .body { context ->
                     val type = context.symbolTable().get("type")
                     val location = context.symbolTable().get("location")
-                    val offset = context.symbolTable().get("offset")
                     val cnt = context.symbolTable().get("cnt")
-                    val speed = context.symbolTable().get("speed")
 
-                    if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || offset !is Vector3
-                            || cnt !is Number || speed !is Number)
+                    val offset = context.symbolTable().get("offset")
+                    val extra = context.symbolTable().get("extra")
+
+                    if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || cnt !is Number)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+                    if((offset != null && offset !is Vector3) || (extra != null && extra !is Number))
                         throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     try {
-                        Particle.valueOf(type.value()).builder()
+                        val builder = Particle.valueOf(type.value()).builder()
                             .location(location.location())
-                            .offset(offset.vector().x, offset.vector().y, offset.vector().z)
                             .count(cnt.value().toInt())
-                            .extra(speed.value())
-                            .spawn()
+
+                        if(offset != null)
+                            builder.offset(offset.vector().x, offset.vector().y, offset.vector().z)
+                        if(extra != null)
+                            builder.extra(extra.value())
+
+                        builder.spawn()
                     } catch (_: IllegalArgumentException) {
                         throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Unknown particle name", context.parent()!!)
                     }
