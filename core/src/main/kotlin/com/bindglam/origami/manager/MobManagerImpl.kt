@@ -1,11 +1,19 @@
 package com.bindglam.origami.manager
 
+import com.bindglam.origami.api.data.ConfigLoader
 import com.bindglam.origami.api.manager.MobManager
 import com.bindglam.origami.api.mob.LivingMob
 import com.bindglam.origami.api.mob.properties.MobProperties
 import com.bindglam.origami.api.mob.OrigamiMob
+import com.bindglam.origami.api.mob.properties.Attributes
 import com.bindglam.origami.mob.OrigamiMobImpl
+import io.papermc.paper.registry.RegistryAccess
+import io.papermc.paper.registry.RegistryKey
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.minimessage.MiniMessage
+import org.bukkit.NamespacedKey
+import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeModifier
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Entity
@@ -23,14 +31,9 @@ object MobManagerImpl : MobManager {
 
     override fun start() {
         fun loadMob(id: String, config: ConfigurationSection): OrigamiMob {
-            val properties = MobProperties.builder()
-                .id(id)
-                .type(EntityType.valueOf(config.getString("type")!!))
-                .displayName(config.getRichMessage("display-name"))
-
             val script = ScriptManagerImpl.getScript(if(config.contains("script")) config.getString("script")!! else id)
 
-            return OrigamiMobImpl(properties.build(), script.orElseThrow())
+            return OrigamiMobImpl(ConfigLoader.load(config, MobProperties::class.java), script.orElseThrow())
         }
 
         if(!mobsFolder.exists())

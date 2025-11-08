@@ -9,6 +9,8 @@ import com.bindglam.origami.manager.MobManagerImpl
 import com.bindglam.origami.utils.plugin
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
+import org.bukkit.attribute.Attributable
+import org.bukkit.entity.LivingEntity
 import org.bukkit.persistence.PersistentDataType
 
 class OrigamiMobImpl(private val properties: MobProperties, private val script: Script) : OrigamiMob {
@@ -25,6 +27,12 @@ class OrigamiMobImpl(private val properties: MobProperties, private val script: 
             if(properties.displayName() != null)
                 isCustomNameVisible = true
             customName(properties.displayName())
+
+            if(this is Attributable) {
+                properties.attributes().attributes().forEach { entry ->
+                    getAttribute(entry.key)!!.addModifier(entry.value)
+                }
+            }
 
             persistentDataContainer.set(PDC_MOB_ID, PersistentDataType.STRING, properties.id())
         }
