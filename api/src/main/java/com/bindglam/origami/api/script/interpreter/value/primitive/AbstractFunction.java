@@ -2,6 +2,7 @@ package com.bindglam.origami.api.script.interpreter.value.primitive;
 
 import com.bindglam.origami.api.OrigamiProvider;
 import com.bindglam.origami.api.script.Position;
+import com.bindglam.origami.api.script.RuntimeScript;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.interpreter.Context;

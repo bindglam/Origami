@@ -82,6 +82,21 @@ object ScriptManagerImpl : ScriptManager {
             )
 
             registerBuiltInFunction(BuiltInFunction.builder()
+                .name("DELAY")
+                .args("time")
+                .body { context ->
+                    val time = context.symbolTable().get("time")
+
+                    if (time !is Number)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    Thread.sleep(time.value().toLong()*(1000L/20L))
+                    return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
                 .name("TO_RADIANS")
                 .args("angle")
                 .body { context ->
@@ -159,15 +174,16 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("PARTICLE")
-                .args("type", "location", "offset", "cnt")
+                .args("type", "location", "offset", "cnt", "speed")
                 .body { context ->
                     val type = context.symbolTable().get("type")
                     val location = context.symbolTable().get("location")
                     val offset = context.symbolTable().get("offset")
                     val cnt = context.symbolTable().get("cnt")
+                    val speed = context.symbolTable().get("speed")
 
                     if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || offset !is Vector3
-                            || cnt !is Number)
+                            || cnt !is Number || speed !is Number)
                         throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
 
                     try {
@@ -175,6 +191,7 @@ object ScriptManagerImpl : ScriptManager {
                             .location(location.location())
                             .offset(offset.vector().x, offset.vector().y, offset.vector().z)
                             .count(cnt.value().toInt())
+                            .extra(speed.value())
                             .spawn()
                     } catch (_: IllegalArgumentException) {
                         throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Unknown particle name", context.parent()!!)

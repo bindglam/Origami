@@ -3,9 +3,12 @@ package com.bindglam.origami
 import com.bindglam.origami.api.Origami
 import com.bindglam.origami.api.OrigamiProvider
 import com.bindglam.origami.api.manager.ScriptManager
+import com.bindglam.origami.api.scheduler.Scheduler
 import com.bindglam.origami.listeners.EntityListener
 import com.bindglam.origami.manager.MobManagerImpl
 import com.bindglam.origami.manager.ScriptManagerImpl
+import com.bindglam.origami.scheduler.FoliaScheduler
+import com.bindglam.origami.scheduler.PaperScheduler
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandAPIPaperConfig
@@ -21,6 +24,8 @@ class OrigamiPlugin : JavaPlugin(), Origami {
         ScriptManagerImpl,
         MobManagerImpl
     )
+
+    private lateinit var scheduler: Scheduler
 
     override fun onLoad() {
         CommandAPI.onLoad(CommandAPIPaperConfig(this))
@@ -48,6 +53,8 @@ class OrigamiPlugin : JavaPlugin(), Origami {
 
         OrigamiProvider.register(this)
 
+        scheduler = if(isFolia()) FoliaScheduler(this) else PaperScheduler(this)
+
         server.pluginManager.registerEvents(EntityListener, this)
 
         managers.forEach { it.start() }
@@ -59,5 +66,16 @@ class OrigamiPlugin : JavaPlugin(), Origami {
         managers.forEach { it.end() }
     }
 
+    private fun isFolia(): Boolean {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer")
+            return true
+        } catch (_: ClassNotFoundException) {
+            return false
+        }
+    }
+
     override fun scriptManager(): ScriptManager = ScriptManagerImpl
+
+    override fun scheduler(): Scheduler = scheduler
 }
