@@ -1,8 +1,10 @@
 package com.bindglam.origami.api.script.interpreter.value.primitive;
 
 import com.bindglam.origami.api.script.Position;
+import com.bindglam.origami.api.script.exceptions.DivisionByZeroException;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
+import com.bindglam.origami.api.script.exceptions.UnsupportedOperationException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.*;
 import com.bindglam.origami.api.script.interpreter.value.Comparable;
@@ -27,7 +29,7 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number addedTo(Value<?> other) throws RuntimeException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(Objects.requireNonNull(posStart()), other.posEnd(), "Unsupported operation", Objects.requireNonNull(context()));
+            throw new UnsupportedOperationException(Objects.requireNonNull(posStart()), other.posEnd(), Objects.requireNonNull(context()));
 
         return set(value + otherNum.value);
     }
@@ -35,7 +37,7 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number subbedTo(Value<?> other) throws RuntimeException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(Objects.requireNonNull(posStart()), other.posEnd(), "Unsupported operation", Objects.requireNonNull(context()));
+            throw new UnsupportedOperationException(Objects.requireNonNull(posStart()), other.posEnd(), Objects.requireNonNull(context()));
 
         return set(value - otherNum.value);
     }
@@ -43,7 +45,7 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number multedBy(Value<?> other) throws RuntimeException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(Objects.requireNonNull(posStart()), other.posEnd(), "Unsupported operation", Objects.requireNonNull(context()));
+            throw new UnsupportedOperationException(Objects.requireNonNull(posStart()), other.posEnd(), Objects.requireNonNull(context()));
 
         return set(value * otherNum.value);
     }
@@ -51,10 +53,10 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number divedBy(Value<?> other) throws ScriptException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new UnsupportedOperationException(posStart(), other.posEnd(), context());
 
         if(Double.compare(otherNum.value, 0.0) == 0)
-            throw new RuntimeException(otherNum.posStart(), otherNum.posEnd(), "Division by zero", context());
+            throw new DivisionByZeroException(otherNum.posStart(), otherNum.posEnd(), context());
         return set(value / otherNum.value);
     }
 
@@ -73,7 +75,7 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number compareLessThan(Value<?> other) throws ScriptException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new UnsupportedOperationException(posStart(), other.posEnd(), context());
 
         return set(Double.compare(value, otherNum.value) < 0 ? 1 : 0);
     }
@@ -81,7 +83,7 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number compareGreaterThan(Value<?> other) throws ScriptException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new UnsupportedOperationException(posStart(), other.posEnd(), context());
 
         return set(Double.compare(value, otherNum.value) > 0 ? 1 : 0);
     }
@@ -89,7 +91,7 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number compareLessThanEquals(Value<?> other) throws ScriptException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new UnsupportedOperationException(posStart(), other.posEnd(), context());
 
         return set(Double.compare(value, otherNum.value) <= 0 ? 1 : 0);
     }
@@ -97,7 +99,7 @@ public record Number(double value, @NotNull Position posStart, @NotNull Position
     @Override
     public Number compareGreaterThanEquals(Value<?> other) throws ScriptException {
         if(!(other instanceof Number otherNum))
-            throw new RuntimeException(posStart(), other.posEnd(), "Unsupported operation", context());
+            throw new UnsupportedOperationException(posStart(), other.posEnd(), context());
 
         return set(Double.compare(value, otherNum.value) >= 0 ? 1 : 0);
     }

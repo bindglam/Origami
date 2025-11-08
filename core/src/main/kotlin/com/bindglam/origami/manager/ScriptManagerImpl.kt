@@ -1,7 +1,9 @@
 package com.bindglam.origami.manager
 
+import com.bindglam.origami.api.OrigamiProvider
 import com.bindglam.origami.api.manager.ScriptManager
 import com.bindglam.origami.api.script.Script
+import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.exceptions.RuntimeException
 import com.bindglam.origami.api.script.exceptions.ScriptException
 import com.bindglam.origami.api.script.interpreter.SymbolTable
@@ -10,11 +12,14 @@ import com.bindglam.origami.api.script.interpreter.value.bukkit.Entity
 import com.bindglam.origami.api.script.interpreter.value.primitive.Function
 import com.bindglam.origami.api.script.interpreter.value.math.Location
 import com.bindglam.origami.api.script.interpreter.value.math.Vector3
+import com.bindglam.origami.api.script.interpreter.value.primitive.List
 import com.bindglam.origami.api.utils.math.LocationAdaptable
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Bukkit
 import org.bukkit.Particle
+import org.bukkit.entity.LivingEntity
+import org.bukkit.util.Vector
 import org.joml.Vector3d
 import java.io.File
 import java.util.*
@@ -46,7 +51,7 @@ object ScriptManagerImpl : ScriptManager {
 
                     if (world !is com.bindglam.origami.api.script.interpreter.value.primitive.String || x !is Number || y !is Number || z !is Number
                         || yaw !is Number || pitch !is Number)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     return@body Location(org.bukkit.Location(Bukkit.getWorld(world.value()), x.value(), y.value(), z.value(), yaw.value().toFloat(), pitch.value().toFloat()))
                 }
@@ -62,9 +67,23 @@ object ScriptManagerImpl : ScriptManager {
                     val z = context.symbolTable().get("z")
 
                     if (x !is Number || y !is Number || z !is Number)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     return@body Vector3(Vector3d(x.value(), y.value(), z.value()))
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("LOCATION_TO_VECTOR3")
+                .args("location")
+                .body { context ->
+                    val location = context.symbolTable().get("location")
+
+                    if (location !is LocationAdaptable)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    return@body Vector3(Vector3d(location.location().x, location.location().y, location.location().z))
                 }
                 .build()
             )
@@ -82,13 +101,27 @@ object ScriptManagerImpl : ScriptManager {
             )
 
             registerBuiltInFunction(BuiltInFunction.builder()
+                .name("LEN")
+                .args("list")
+                .body { context ->
+                    val list = context.symbolTable().get("list")
+
+                    if (list !is List)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    return@body Number(list.list().size.toDouble())
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
                 .name("DELAY")
                 .args("time")
                 .body { context ->
                     val time = context.symbolTable().get("time")
 
                     if (time !is Number)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     Thread.sleep(time.value().toLong()*(1000L/20L))
                     return@body null
@@ -103,7 +136,7 @@ object ScriptManagerImpl : ScriptManager {
                     val angle = context.symbolTable().get("angle")
 
                     if (angle !is Number)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     return@body Number(Math.toRadians(angle.value()))
                 }
@@ -117,7 +150,7 @@ object ScriptManagerImpl : ScriptManager {
                     val angle = context.symbolTable().get("angle")
 
                     if (angle !is Number)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     return@body Number(cos(angle.value()))
                 }
@@ -131,12 +164,27 @@ object ScriptManagerImpl : ScriptManager {
                     val angle = context.symbolTable().get("angle")
 
                     if (angle !is Number)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     return@body Number(sin(angle.value()))
                 }
                 .build()
             )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("NORMALIZE")
+                .args("vector")
+                .body { context ->
+                    val vector = context.symbolTable().get("vector")
+
+                    if (vector !is Vector3)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    return@body Vector3(vector.vector().normalize(Vector3d()))
+                }
+                .build()
+            )
+
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("REGISTER_LISTENER")
@@ -146,7 +194,7 @@ object ScriptManagerImpl : ScriptManager {
                     val func = context.symbolTable().get("func")
 
                     if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || func !is Function)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     context.script().eventRegistry.register(type.value(), func)
 
@@ -163,11 +211,88 @@ object ScriptManagerImpl : ScriptManager {
                     val message = context.symbolTable().get("message")
 
                     if (entity !is Entity || message !is com.bindglam.origami.api.script.interpreter.value.primitive.String)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     entity.bukkitEntity().sendMessage(MiniMessage.miniMessage().deserialize(message.value()))
 
                     return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("DAMAGE")
+                .args("entity", "amount", "attacker")
+                .body { context ->
+                    val entity = context.symbolTable().get("entity")
+                    val amount = context.symbolTable().get("amount")
+                    val attacker = context.symbolTable().get("attacker")
+
+                    if (entity !is Entity || amount !is Number || attacker !is Entity)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    val bukkitEntity = entity.bukkitEntity()
+                    if (bukkitEntity !is LivingEntity)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "You can damage only living entities", context.parent()!!)
+
+                    OrigamiProvider.origami().scheduler().task {
+                        bukkitEntity.damage(amount.value(), attacker.bukkitEntity())
+                    }
+
+                    return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("KNOCKBACK")
+                .args("entity", "vector")
+                .body { context ->
+                    val entity = context.symbolTable().get("entity")
+                    val vector = context.symbolTable().get("vector")
+
+                    if (entity !is Entity || vector !is Vector3)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    entity.bukkitEntity().velocity = Vector(vector.vector().x, vector.vector().y, vector.vector().z)
+
+                    return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("PLAY_SOUND")
+                .args("location", "key", "volume", "pitch")
+                .body { context ->
+                    val location = context.symbolTable().get("location")
+                    val key = context.symbolTable().get("key")
+                    val volume = context.symbolTable().get("volume")
+                    val pitch = context.symbolTable().get("pitch")
+
+                    if (location !is LocationAdaptable || key !is com.bindglam.origami.api.script.interpreter.value.primitive.String || volume !is Number || pitch !is Number)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    OrigamiProvider.origami().scheduler().task {
+                        location.location().world.playSound(location.location(), key.value(), volume.value().toFloat(), pitch.value().toFloat())
+                    }
+
+                    return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("GET_NEAR_BY_ENTITIES")
+                .args("location", "radius")
+                .body { context ->
+                    val location = context.symbolTable().get("location")
+                    val radius = context.symbolTable().get("radius")
+
+                    if (location !is LocationAdaptable || radius !is Number)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
+
+                    return@body List(location.location().getNearbyLivingEntities(radius.value()).map { Entity(it) })
                 }
                 .build()
             )
@@ -184,7 +309,7 @@ object ScriptManagerImpl : ScriptManager {
 
                     if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || offset !is Vector3
                             || cnt !is Number || speed !is Number)
-                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+                        throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                     try {
                         Particle.valueOf(type.value()).builder()
@@ -221,6 +346,12 @@ object ScriptManagerImpl : ScriptManager {
         loadedScripts.clear()
 
         builtInFunctions.clear()
+    }
+
+    override fun reload() {
+        end()
+
+        start()
     }
 
     override fun compileAll() {

@@ -3,6 +3,7 @@ package com.bindglam.origami.api.script.interpreter.value.primitive;
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
+import com.bindglam.origami.api.script.exceptions.UnsupportedOperationException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.Addable;
 import com.bindglam.origami.api.script.interpreter.value.Value;
@@ -20,7 +21,7 @@ public record String(java.lang.String value, @NotNull Position posStart, @NotNul
     @Override
     public String addedTo(Value<?> other) throws ScriptException {
         if(!(other instanceof String otherStr))
-            throw new RuntimeException(posStart, posEnd, "Unsupported operation", context);
+            throw new UnsupportedOperationException(posStart, posEnd, context);
 
         return set(value + otherStr.value);
     }

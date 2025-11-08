@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public interface ScriptManager extends ManagerBase {
+public interface ScriptManager extends ManagerBase, Reloadable {
     void compileAll();
 
     void registerBuiltInFunction(@NotNull BuiltInFunction function);

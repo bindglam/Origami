@@ -52,6 +52,12 @@ object MobManagerImpl : MobManager {
         mobs.clear()
     }
 
+    override fun reload() {
+        end()
+
+        start()
+    }
+
     override fun getMob(id: String): Optional<OrigamiMob> = Optional.ofNullable(loadedMobs[id])
 
     override fun getLivingMob(entity: Entity): Optional<LivingMob> = Optional.ofNullable(mobs[entity.uniqueId])

@@ -2,6 +2,8 @@ package com.bindglam.origami
 
 import com.bindglam.origami.api.Origami
 import com.bindglam.origami.api.OrigamiProvider
+import com.bindglam.origami.api.manager.ManagerBase
+import com.bindglam.origami.api.manager.Reloadable
 import com.bindglam.origami.api.manager.ScriptManager
 import com.bindglam.origami.api.scheduler.Scheduler
 import com.bindglam.origami.listeners.EntityListener
@@ -14,13 +16,14 @@ import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandAPIPaperConfig
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.StringArgument
+import dev.jorel.commandapi.executors.CommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.plugin.java.JavaPlugin
 
 class OrigamiPlugin : JavaPlugin(), Origami {
-    private val managers = listOf(
+    private val managers = listOf<ManagerBase>(
         ScriptManagerImpl,
         MobManagerImpl
     )
@@ -33,6 +36,14 @@ class OrigamiPlugin : JavaPlugin(), Origami {
         CommandAPICommand("origami")
             .withPermission(CommandPermission.OP)
             .withSubcommands(
+                CommandAPICommand("reload")
+                    .executes(CommandExecutor { player, args ->
+                        player.sendMessage(Component.text("Reloading...").color(NamedTextColor.YELLOW))
+
+                        reload()
+
+                        player.sendMessage(Component.text("Successfully reloaded").color(NamedTextColor.GREEN))
+                    }),
                 CommandAPICommand("spawn")
                     .withArguments(StringArgument("id"))
                     .executesPlayer(PlayerCommandExecutor { player, args ->
@@ -64,6 +75,19 @@ class OrigamiPlugin : JavaPlugin(), Origami {
         CommandAPI.onDisable()
 
         managers.forEach { it.end() }
+    }
+
+    override fun reload(): Origami.ResultResult {
+        try {
+            val reloadableList = managers.filter { it is Reloadable }.map { it as Reloadable }
+
+            for(reloadable in reloadableList)
+                reloadable.reload()
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to reload", e)
+        }
+
+        return Origami.ResultResult.SUCCESS
     }
 
     private fun isFolia(): Boolean {

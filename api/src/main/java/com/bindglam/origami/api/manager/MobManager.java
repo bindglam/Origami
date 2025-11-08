@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public interface MobManager extends ManagerBase {
+public interface MobManager extends ManagerBase, Reloadable {
     Optional<OrigamiMob> getMob(@NotNull String id);
 
     Optional<LivingMob> getLivingMob(@NotNull Entity entity);

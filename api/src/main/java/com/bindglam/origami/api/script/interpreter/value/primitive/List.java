@@ -3,6 +3,7 @@ package com.bindglam.origami.api.script.interpreter.value.primitive;
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
+import com.bindglam.origami.api.script.exceptions.UnsupportedOperationException;
 import com.bindglam.origami.api.script.interpreter.Context;
 import com.bindglam.origami.api.script.interpreter.value.Value;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,7 @@ public record List(java.util.List<Value<?>> list, @NotNull Position posStart, @N
 
     @Override
     public boolean isTrue() throws ScriptException {
-        throw new RuntimeException(posStart, posEnd, "Unsupported operation", context);
+        throw new UnsupportedOperationException(posStart, posEnd, context);
     }
 
     @Override
