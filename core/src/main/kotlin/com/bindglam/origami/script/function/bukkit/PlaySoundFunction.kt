@@ -1,11 +1,13 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.bukkit
 
 import com.bindglam.origami.api.OrigamiProvider
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
+import com.bindglam.origami.api.script.interpreter.value.primitive.String
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
 import com.bindglam.origami.api.utils.math.LocationAdaptable
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 
 object PlaySoundFunction : BuiltInFunctionFactory {
     override fun create(): BuiltInFunction {
@@ -18,7 +20,7 @@ object PlaySoundFunction : BuiltInFunctionFactory {
                 val volume = context.symbolTable().get("volume")
                 val pitch = context.symbolTable().get("pitch")
 
-                if (location !is LocationAdaptable || key !is com.bindglam.origami.api.script.interpreter.value.primitive.String || volume !is com.bindglam.origami.api.script.interpreter.value.primitive.Number || pitch !is Number)
+                if (location !is LocationAdaptable || key !is String || volume !is Number || pitch !is Number)
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                 OrigamiProvider.origami().scheduler().task {

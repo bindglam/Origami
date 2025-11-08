@@ -1,12 +1,14 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.bukkit
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.exceptions.RuntimeException
 import com.bindglam.origami.api.script.interpreter.value.math.Vector3
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
+import com.bindglam.origami.api.script.interpreter.value.primitive.String
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
 import com.bindglam.origami.api.utils.math.LocationAdaptable
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 import org.bukkit.Particle
 
 object ParticleFunction : BuiltInFunctionFactory {
@@ -27,7 +29,7 @@ object ParticleFunction : BuiltInFunctionFactory {
                 val offset = context.symbolTable().get("offset")
                 val extra = context.symbolTable().get("extra")
 
-                if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || cnt !is Number)
+                if (type !is String || location !is LocationAdaptable || cnt !is Number)
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
                 if((offset != null && offset !is Vector3) || (extra != null && extra !is Number))
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)

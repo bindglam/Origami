@@ -1,23 +1,23 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.math
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
-import com.bindglam.origami.api.script.interpreter.value.math.Vector3
+import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
-import org.joml.Vector3d
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 
-object NormalizeFunction : BuiltInFunctionFactory {
+object ToRadiansFunction : BuiltInFunctionFactory {
     override fun create(): BuiltInFunction {
         return BuiltInFunction.builder()
-            .name("NORMALIZE")
-            .args(Argument.builder().name("vector").build())
+            .name("TO_RADIANS")
+            .args(Argument.builder().name("angle").build())
             .body { context ->
-                val vector = context.symbolTable().get("vector")
+                val angle = context.symbolTable().get("angle")
 
-                if (vector !is Vector3)
+                if (angle !is Number)
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
-                return@body Vector3(vector.vector().normalize(Vector3d()))
+                return@body Number(Math.toRadians(angle.value()))
             }
             .build()
     }

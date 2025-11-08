@@ -1,9 +1,11 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.bukkit
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.interpreter.value.bukkit.Entity
+import com.bindglam.origami.api.script.interpreter.value.primitive.String
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 import net.kyori.adventure.text.minimessage.MiniMessage
 
 object SendMessageFunction : BuiltInFunctionFactory {
@@ -15,7 +17,7 @@ object SendMessageFunction : BuiltInFunctionFactory {
                 val entity = context.symbolTable().get("entity")
                 val message = context.symbolTable().get("message")
 
-                if (entity !is Entity || message !is com.bindglam.origami.api.script.interpreter.value.primitive.String)
+                if (entity !is Entity || message !is String)
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
                 entity.bukkitEntity().sendMessage(MiniMessage.miniMessage().deserialize(message.value()))

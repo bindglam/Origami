@@ -1,22 +1,24 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.io
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 
-object ToRadiansFunction : BuiltInFunctionFactory {
+object DelayFunction : BuiltInFunctionFactory {
     override fun create(): BuiltInFunction {
         return BuiltInFunction.builder()
-            .name("TO_RADIANS")
-            .args(Argument.builder().name("angle").build())
+            .name("DELAY")
+            .args(Argument.builder().name("time").build())
             .body { context ->
-                val angle = context.symbolTable().get("angle")
+                val time = context.symbolTable().get("time")
 
-                if (angle !is Number)
+                if (time !is Number)
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
-                return@body Number(Math.toRadians(angle.value()))
+                Thread.sleep(time.value().toLong()*(1000L/20L))
+                return@body null
             }
             .build()
     }

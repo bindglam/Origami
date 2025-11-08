@@ -1,29 +1,32 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.value
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.interpreter.value.math.Location
-import com.bindglam.origami.api.script.interpreter.value.math.Vector3
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import com.bindglam.origami.api.script.interpreter.value.primitive.String
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 import org.bukkit.Bukkit
-import org.joml.Vector3d
 
-object Vector3Function : BuiltInFunctionFactory {
+object LocationFunction : BuiltInFunctionFactory {
     override fun create(): BuiltInFunction {
         return BuiltInFunction.builder()
-            .name("VECTOR3")
-            .args(Argument.builder().name("x").build(), Argument.builder().name("y").build(), Argument.builder().name("z").build())
+            .name("LOCATION")
+            .args(Argument.builder().name("world").build(), Argument.builder().name("x").build(), Argument.builder().name("y").build(), Argument.builder().name("z").build(), Argument.builder().name("yaw").build(), Argument.builder().name("pitch").build())
             .body { context ->
+                val world = context.symbolTable().get("world")
                 val x = context.symbolTable().get("x")
                 val y = context.symbolTable().get("y")
                 val z = context.symbolTable().get("z")
+                val yaw = context.symbolTable().get("yaw")
+                val pitch = context.symbolTable().get("pitch")
 
-                if (x !is Number || y !is Number || z !is Number)
+                if (world !is String || x !is Number || y !is Number || z !is Number
+                        || yaw !is Number || pitch !is Number)
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
-                return@body Vector3(Vector3d(x.value(), y.value(), z.value()))
+                return@body Location(org.bukkit.Location(Bukkit.getWorld(world.value()), x.value(), y.value(), z.value(), yaw.value().toFloat(), pitch.value().toFloat()))
             }
             .build()
     }

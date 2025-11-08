@@ -1,9 +1,10 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.math
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 import kotlin.math.cos
 
 object CosFunction : BuiltInFunctionFactory {

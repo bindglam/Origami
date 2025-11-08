@@ -1,10 +1,11 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.value
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.interpreter.value.math.Vector3
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
 import com.bindglam.origami.api.utils.math.LocationAdaptable
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 import org.joml.Vector3d
 
 object LocationToVector3Function : BuiltInFunctionFactory {

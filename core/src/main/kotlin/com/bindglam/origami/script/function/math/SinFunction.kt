@@ -1,23 +1,24 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.math
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
-import com.bindglam.origami.api.script.interpreter.value.primitive.List
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
+import kotlin.math.sin
 
-object LengthFunction : BuiltInFunctionFactory {
+object SinFunction : BuiltInFunctionFactory {
     override fun create(): BuiltInFunction {
         return BuiltInFunction.builder()
-            .name("LEN")
-            .args(Argument.builder().name("list").build())
+            .name("SIN")
+            .args(Argument.builder().name("angle").build())
             .body { context ->
-                val list = context.symbolTable().get("list")
+                val angle = context.symbolTable().get("angle")
 
-                if (list !is List)
+                if (angle !is Number)
                     throw IllegalArgumentsException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, context.parent()!!)
 
-                return@body Number(list.list().size.toDouble())
+                return@body Number(sin(angle.value()))
             }
             .build()
     }

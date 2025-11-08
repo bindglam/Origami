@@ -1,4 +1,4 @@
-package com.bindglam.origami.script.function
+package com.bindglam.origami.script.function.bukkit
 
 import com.bindglam.origami.api.script.exceptions.IllegalArgumentsException
 import com.bindglam.origami.api.script.interpreter.value.bukkit.Entity
@@ -7,6 +7,7 @@ import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.Argument
 import com.bindglam.origami.api.script.interpreter.value.primitive.function.BuiltInFunction
 import com.bindglam.origami.api.utils.math.LocationAdaptable
+import com.bindglam.origami.script.function.BuiltInFunctionFactory
 
 object GetNearbyEntitiesFunction : BuiltInFunctionFactory {
     override fun create(): BuiltInFunction {
