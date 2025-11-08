@@ -1,5 +1,6 @@
 package com.bindglam.origami.api.script.interpreter.value.primitive;
 
+import com.bindglam.origami.api.OrigamiProvider;
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.String;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractFunction implements Value<AbstractFunction> {
     private final String name;
@@ -26,6 +28,17 @@ public abstract class AbstractFunction implements Value<AbstractFunction> {
     }
 
     public abstract @Nullable Value<?> execute(List<Value<?>> args) throws ScriptException;
+
+    public CompletableFuture<@Nullable Value<?>> executeAsync(List<Value<?>> args) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return execute(args);
+            } catch (ScriptException e) {
+                OrigamiProvider.origami().scriptManager().printException(e);
+            }
+            return null;
+        });
+    }
 
     protected Context generateNewContext() {
         if(context == null)

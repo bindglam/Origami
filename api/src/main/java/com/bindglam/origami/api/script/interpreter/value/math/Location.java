@@ -1,4 +1,4 @@
-package com.bindglam.origami.api.script.interpreter.value.bukkit;
+package com.bindglam.origami.api.script.interpreter.value.math;
 
 import com.bindglam.origami.api.script.Position;
 import com.bindglam.origami.api.script.exceptions.RuntimeException;

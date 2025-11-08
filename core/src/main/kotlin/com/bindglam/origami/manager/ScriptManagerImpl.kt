@@ -8,15 +8,19 @@ import com.bindglam.origami.api.script.interpreter.SymbolTable
 import com.bindglam.origami.api.script.interpreter.value.primitive.BuiltInFunction
 import com.bindglam.origami.api.script.interpreter.value.bukkit.Entity
 import com.bindglam.origami.api.script.interpreter.value.primitive.Function
-import com.bindglam.origami.api.script.interpreter.value.bukkit.Location
+import com.bindglam.origami.api.script.interpreter.value.math.Location
+import com.bindglam.origami.api.script.interpreter.value.math.Vector3
 import com.bindglam.origami.api.utils.math.LocationAdaptable
 import com.bindglam.origami.api.script.interpreter.value.primitive.Number
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Bukkit
 import org.bukkit.Particle
+import org.joml.Vector3d
 import java.io.File
 import java.util.*
 import java.util.logging.Logger
+import kotlin.math.cos
+import kotlin.math.sin
 
 object ScriptManagerImpl : ScriptManager {
     private val scriptsFolder = File("plugins/Origami/scripts")
@@ -49,6 +53,22 @@ object ScriptManagerImpl : ScriptManager {
                 .build()
             )
 
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("VECTOR3")
+                .args("x", "y", "z")
+                .body { context ->
+                    val x = context.symbolTable().get("x")
+                    val y = context.symbolTable().get("y")
+                    val z = context.symbolTable().get("z")
+
+                    if (x !is Number || y !is Number || z !is Number)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    return@body Vector3(Vector3d(x.value(), y.value(), z.value()))
+                }
+                .build()
+            )
+
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("PRINT")
@@ -57,6 +77,48 @@ object ScriptManagerImpl : ScriptManager {
                     println(context.symbolTable().get("value").toString())
 
                     return@body null
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("TO_RADIANS")
+                .args("angle")
+                .body { context ->
+                    val angle = context.symbolTable().get("angle")
+
+                    if (angle !is Number)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    return@body Number(Math.toRadians(angle.value()))
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("COS")
+                .args("angle")
+                .body { context ->
+                    val angle = context.symbolTable().get("angle")
+
+                    if (angle !is Number)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    return@body Number(cos(angle.value()))
+                }
+                .build()
+            )
+
+            registerBuiltInFunction(BuiltInFunction.builder()
+                .name("SIN")
+                .args("angle")
+                .body { context ->
+                    val angle = context.symbolTable().get("angle")
+
+                    if (angle !is Number)
+                        throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
+
+                    return@body Number(sin(angle.value()))
                 }
                 .build()
             )
@@ -97,20 +159,22 @@ object ScriptManagerImpl : ScriptManager {
 
             registerBuiltInFunction(BuiltInFunction.builder()
                 .name("PARTICLE")
-                .args("type", "location", "cnt")
+                .args("type", "location", "offset", "cnt")
                 .body { context ->
                     val type = context.symbolTable().get("type")
                     val location = context.symbolTable().get("location")
+                    val offset = context.symbolTable().get("offset")
                     val cnt = context.symbolTable().get("cnt")
 
-                    if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || cnt !is Number)
+                    if (type !is com.bindglam.origami.api.script.interpreter.value.primitive.String || location !is LocationAdaptable || offset !is Vector3
+                            || cnt !is Number)
                         throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Illegal arguments", context.parent()!!)
 
                     try {
                         Particle.valueOf(type.value()).builder()
                             .location(location.location())
+                            .offset(offset.vector().x, offset.vector().y, offset.vector().z)
                             .count(cnt.value().toInt())
-                            .receivers(32, true)
                             .spawn()
                     } catch (_: IllegalArgumentException) {
                         throw RuntimeException(context.parentEntryPosition()!!, context.parentEntryPosition()!!, "Unknown particle name", context.parent()!!)

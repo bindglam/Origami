@@ -1,10 +1,12 @@
 package com.bindglam.origami.api.script;
 
+import com.bindglam.origami.api.mob.LivingMob;
 import com.bindglam.origami.api.script.exceptions.ScriptException;
 import com.bindglam.origami.api.script.node.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -40,12 +42,16 @@ public final class Script {
         }
     }
 
-    public @NotNull RuntimeScript execute() {
+    public @NotNull RuntimeScript execute(LivingMob mob) {
         if(code == null)
             compile();
 
-        RuntimeScript script = new RuntimeScript(logger, code);
+        RuntimeScript script = new RuntimeScript(logger, mob, code);
         script.run();
         return script;
+    }
+
+    public CompletableFuture<@NotNull RuntimeScript> executeAsync(LivingMob mob) {
+        return CompletableFuture.supplyAsync(() -> execute(mob));
     }
 }

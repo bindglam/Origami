@@ -7,7 +7,11 @@ import com.bindglam.origami.manager.MobManagerImpl
 import org.bukkit.entity.Entity
 
 class LivingMobImpl(private val origamiMob: OrigamiMob, private val entity: Entity) : LivingMob {
-    private val script = origamiMob.script().execute()
+    private lateinit var script: RuntimeScript
+
+    init {
+        origamiMob.script().executeAsync(this).thenAccept { s -> script = s }
+    }
 
     override fun remove() {
         MobManagerImpl.mobs.remove(entity.uniqueId)
